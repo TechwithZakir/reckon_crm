@@ -20,6 +20,9 @@ class AdapterContracts(unittest.TestCase):
         self.frappe.conf = {}
         self.frappe.__version__ = "15.0.0"
         self.frappe.get_installed_apps = Mock(return_value=["frappe", "crm"])
+        self.frappe.get_hooks = Mock(return_value=[
+            "reckon_crm.integrations.crm.renderer.ReckonCRMPage"
+        ])
         self.frappe.get_app_path = lambda app, *parts: str(self.root.joinpath(app, *parts))
         self.frappe.throw = Mock(side_effect=RuntimeError("dependency error"))
         self.frappe.render_template = Mock(return_value="<html>CRM</html>")
@@ -34,6 +37,9 @@ class AdapterContracts(unittest.TestCase):
 
         self.install = importlib.reload(install)
         self.renderer = importlib.reload(renderer)
+        from reckon_crm import diagnostics
+
+        self.diagnostics = importlib.reload(diagnostics)
 
     def write_template(self):
         target = self.root / "reckon_crm" / "templates" / "reckon_crm.html"
@@ -99,6 +105,51 @@ class AdapterContracts(unittest.TestCase):
         self.context.side_effect = PermissionError("CRM access denied")
         with self.assertRaises(PermissionError):
             self.renderer.ReckonCRMPage("crm").render()
+
+    def test_diagnostics_explain_missing_site_prerequisites_and_hooks(self):
+        self.frappe.get_installed_apps.return_value = ["frappe"]
+        self.assertIn("Frappe CRM", self.diagnostics.status()["reason"])
+        self.frappe.get_installed_apps.return_value = ["frappe", "crm"]
+        self.assertIn("not installed", self.diagnostics.status()["reason"])
+        self.frappe.get_installed_apps.return_value = ["frappe", "crm", "reckon_crm"]
+        self.frappe.get_hooks.return_value = None
+        self.assertIn("hook is missing", self.diagnostics.status()["reason"])
+
+    def test_diagnostics_distinguish_unbuilt_ready_and_disabled(self):
+        self.frappe.get_installed_apps.return_value = ["frappe", "crm", "reckon_crm"]
+        state = self.diagnostics.status()
+        self.assertFalse(state["ready"])
+        self.assertIn("not been built", state["reason"])
+        self.assertEqual(state["build_command"], "bench build --app reckon_crm")
+        self.write_template()
+        state = self.diagnostics.status()
+        self.assertTrue(state["ready"])
+        self.assertEqual(state["url"], "/crm/visits")
+        self.frappe.conf["reckon_crm_disabled"] = 1
+        state = self.diagnostics.status()
+        self.assertFalse(state["ready"])
+        self.assertIn("enable_command", state)
+        self.assertNotIn("build_command", state)
+
+    def test_diagnostics_identify_stale_and_missing_build_files(self):
+        self.write_template()
+        page = self.renderer.ReckonCRMPage("crm")
+        source = self.root / "frontend" / "source0.js"
+        source.write_bytes(b"updated")
+        self.assertIn("source0.js", page.asset_status()["reason"])
+        source.write_bytes(b"source")
+        (self.root / "reckon_crm/public/frontend/abc123/index.html").unlink()
+        self.assertIn("asset directory is missing", page.asset_status()["reason"])
+
+    def test_install_reports_frontend_activation(self):
+        with patch.object(self.install, "clear_website_cache"), patch("builtins.print") as output:
+            self.install.after_install()
+            self.assertIn("frontend is inactive", output.call_args_list[0].args[0])
+            self.assertIn("bench build", output.call_args_list[1].args[0])
+            self.write_template()
+            output.reset_mock()
+            self.install.after_install()
+            self.assertIn("/crm/visits", output.call_args.args[0])
 
 
 if __name__ == "__main__":

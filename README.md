@@ -98,6 +98,23 @@ are required for deployment.
 
 ## Disable and uninstall
 
+If installation succeeds but CRM looks unchanged, run from your Bench directory:
+
+```sh
+bench --site YOUR_SITE list-apps
+bench build --app reckon_crm
+bench --site YOUR_SITE clear-cache
+bench --site YOUR_SITE execute reckon_crm.diagnostics.status
+```
+
+After updating a running production deployment, restart its Bench processes using
+your normal deployment procedure and hard-refresh `/crm/visits`. Reckon adds
+features inside `/crm`; Phase 0 does not create a separate Desk workspace. The
+diagnostic explains missing builds, disabled configuration, stale source, and
+missing renderer hooks. A `ready` result checks activation prerequisites, not
+the full browser acceptance checklist. On an older checkout without the diagnostic,
+update the app code first; share any build error rather than assuming a build passed.
+
 To temporarily use the original CRM build:
 
 ```sh

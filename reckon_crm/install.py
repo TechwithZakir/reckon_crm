@@ -16,3 +16,14 @@ def clear_website_cache():
 
     clear_cache()
 
+
+def after_install():
+    clear_website_cache()
+    from reckon_crm.integrations.crm.renderer import ReckonCRMPage
+
+    state = ReckonCRMPage("crm").asset_status()
+    if not state["ready"]:
+        print(f"Reckon CRM installed, but its frontend is inactive: {state['reason']}")
+        print("Run: bench build --app reckon_crm")
+    else:
+        print("Reckon CRM frontend is ready. Open /crm/visits to see Field Visits.")

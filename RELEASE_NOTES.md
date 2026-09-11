@@ -5,6 +5,37 @@ is not a published release. Preserve previous entries when adding new versions.
 
 ## Unreleased
 
+### Installation troubleshooting — 2026-09-11
+
+#### Added
+
+- Administrator-only Bench diagnostic command, `reckon_crm.diagnostics.status`,
+  reporting missing site prerequisites, renderer hooks, frontend assets, invalid
+  metadata, disabled configuration, and stale CRM source fingerprints.
+- Installation output now explicitly reports whether Reckon's frontend is ready
+  and gives the build command when it is inactive.
+- Troubleshooting instructions explain the build/cache checks and that Phase 0
+  appears inside `/crm`, without a separate Desk workspace.
+
+#### Fixed
+
+- Frontend activation failures now have diagnostic reasons instead of only a
+  boolean fallback result. The original CRM fallback is preserved.
+- Disabled sites receive the enable command instead of an unnecessary rebuild
+  instruction; missing hook lists and empty build IDs are handled safely.
+
+#### Validation
+
+- All 10 Python adapter tests passed, including four new tests for diagnostic
+  outcomes, stale/missing assets, and installation messages.
+- `git diff --check` passed. No frontend changes required a new frontend build.
+
+#### Limitations
+
+- The reported installed-site issue is not yet reproduced: its Frappe/CRM versions
+  and build output are needed to identify the actual cause. These local changes
+  have not been deployed to that site.
+
 ### Phase 0 — extension proof of concept
 
 Recorded on 2026-09-11. Current package version: `0.1.0`.
