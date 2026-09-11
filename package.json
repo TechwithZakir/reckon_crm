@@ -1,0 +1,17 @@
+{
+  "name": "reckon-crm",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "engines": { "node": ">=20.19" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check:compatibility": "node scripts/check-compatibility.mjs",
+    "test": "node --test tests/frontend/*.test.mjs",
+    "test:upstream": "node --test tests/integration/*.test.mjs"
+  },
+  "devDependencies": {
+    "@vue/compiler-sfc": "3.5.13"
+  }
+}

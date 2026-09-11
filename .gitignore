@@ -1,0 +1,15 @@
+.upstream-crm/
+.reference/
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+reckon_crm/public/frontend/
+reckon_crm/templates/reckon_crm.html
+reckon_crm/templates/reckon_crm.json
+coverage/
+test-results/
+.env

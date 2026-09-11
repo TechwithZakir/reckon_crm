@@ -1,0 +1,43 @@
+name: Checks
+on: [push, pull_request]
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install 'werkzeug>=2.3,<4' 'flit_core>=3.4,<4'
+      - run: python -m unittest discover -s tests/backend -v
+      - run: python -m flit_core.wheel
+
+  crm-source:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        crm-ref:
+          - 52c500d6bdac3cd51553f95cfae9c7a940d99f1a
+          - 73a209823730adb8d1f3e64ac471971f63362ca2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: frappe/crm
+          ref: ${{ matrix.crm-ref }}
+          path: .upstream-crm
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:upstream
+        env:
+          RECKON_CRM_SOURCE: .upstream-crm

@@ -1,0 +1,1 @@
+# Migration patches will be added with the first business module.

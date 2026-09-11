@@ -1,0 +1,2406 @@
+Absolutely. Below is a complete **Codex-ready project plan** for `reckon_crm`, structured so you can give it directly to Codex and implement phase by phase without drifting away from the architecture we discussed.
+
+# Reckon CRM — Codex Project Plan
+
+## 1. Project Objective
+
+Build a new Frappe application named:
+
+```text
+reckon_crm
+```
+
+The application must extend **Frappe CRM** and enhance it with:
+
+* Field Sales
+* Geo-based Customer Visits
+* Customer Location Management
+* Lead and Deal Sales Intelligence
+* CRM-native Product and Quotation Management
+* Optional ERPNext Quotation Sync
+* Optional HRMS Attendance Integration
+* Territory and Target Management
+* Forecasting
+* Campaign Tracking
+* AI Sales Assistant
+* Omnichannel CRM Experience
+* PWA-first mobile usage
+
+The app must **not replace Frappe CRM**.
+
+It must extend and enrich the existing Frappe CRM experience at:
+
+```text
+/crm
+```
+
+---
+
+# 2. Mandatory Architecture Rules
+
+Codex must strictly follow these rules.
+
+```text
+1. Frappe CRM is the core CRM foundation.
+
+2. Use native Frappe CRM records:
+   - CRM Lead
+   - CRM Deal
+   - CRM Organization
+   - Contact
+   - CRM Task
+   - CRM Call Log
+   - Communication
+   - Notes
+   - Activities
+
+3. Do NOT use ERPNext Lead, Opportunity, Customer, Item,
+   or Quotation as the primary CRM entities.
+
+4. ERPNext must remain optional.
+
+5. HRMS must remain optional.
+
+6. WhatsApp must reuse existing Frappe CRM / frappe_whatsapp integration.
+
+7. Meta Lead sync must be reused if already installed.
+
+8. Do NOT fork frappe/crm.
+
+9. Do NOT directly modify apps/crm.
+
+10. All Reckon-specific business logic belongs inside reckon_crm.
+
+11. Any frontend coupling to Frappe CRM must be isolated inside
+    a small compatibility/adapter layer.
+
+12. The app must work even when ERPNext is not installed.
+
+13. The app must work even when HRMS is not installed.
+
+14. Mobile/PWA support is mandatory.
+
+15. Security, permission checks, and auditability must be built in
+    from the beginning.
+```
+
+---
+
+# 3. Product Architecture
+
+The product should be organized into the following business domains:
+
+```text
+Reckon CRM
+│
+├── Core CRM Extension
+├── Field Sales
+├── Sales Automation
+├── Sales Intelligence
+├── Products & Pricing
+├── Quotations
+├── Targets & Forecasting
+├── Territory Management
+├── Campaign Management
+├── Omnichannel
+├── AI Sales Assistant
+├── ERPNext Integration
+└── HRMS Integration
+```
+
+---
+
+# 4. Recommended Repository Structure
+
+```text
+reckon_crm/
+│
+├── AGENTS.md
+├── README.md
+├── LICENSE
+├── pyproject.toml
+├── package.json
+├── eslint.config.js
+├── prettier.config.js
+│
+├── reckon_crm/
+│   │
+│   ├── __init__.py
+│   ├── hooks.py
+│   ├── install.py
+│   ├── patches.txt
+│   │
+│   ├── api/
+│   │   ├── visits.py
+│   │   ├── geo.py
+│   │   ├── quotes.py
+│   │   ├── products.py
+│   │   ├── forecasting.py
+│   │   ├── targets.py
+│   │   └── ai.py
+│   │
+│   ├── services/
+│   │   ├── activity_service.py
+│   │   ├── visit_service.py
+│   │   ├── geofence_service.py
+│   │   ├── quote_service.py
+│   │   ├── scoring_service.py
+│   │   ├── forecast_service.py
+│   │   └── assignment_service.py
+│   │
+│   ├── integrations/
+│   │   ├── crm/
+│   │   │   ├── adapter.py
+│   │   │   ├── activity.py
+│   │   │   └── permissions.py
+│   │   │
+│   │   ├── erpnext/
+│   │   │   ├── availability.py
+│   │   │   ├── quotation_sync.py
+│   │   │   ├── customer_mapper.py
+│   │   │   ├── item_mapper.py
+│   │   │   └── tax_mapper.py
+│   │   │
+│   │   ├── hrms/
+│   │   │   ├── availability.py
+│   │   │   └── attendance.py
+│   │   │
+│   │   └── ai/
+│   │       ├── provider.py
+│   │       ├── openai.py
+│   │       └── prompts.py
+│   │
+│   ├── utils/
+│   │   ├── apps.py
+│   │   ├── geo.py
+│   │   ├── money.py
+│   │   ├── datetime.py
+│   │   └── permissions.py
+│   │
+│   └── reckon_crm/
+│       └── doctype/
+│
+├── frontend/
+│   ├── src/
+│   │
+│   │   ├── extensions/
+│   │   │   ├── registry/
+│   │   │   │   ├── tabs.js
+│   │   │   │   ├── routes.js
+│   │   │   │   ├── sidebar.js
+│   │   │   │   └── actions.js
+│   │   │   │
+│   │   │   ├── adapters/
+│   │   │   │   ├── crmDesktopAdapter.js
+│   │   │   │   ├── crmMobileAdapter.js
+│   │   │   │   └── compatibility.js
+│   │   │   │
+│   │   │   └── index.js
+│   │
+│   ├── pages/
+│   │   ├── FieldVisits.vue
+│   │   ├── VisitPlan.vue
+│   │   ├── MyDay.vue
+│   │   ├── FieldMap.vue
+│   │   ├── NearbyCustomers.vue
+│   │   ├── Quotes.vue
+│   │   ├── Products.vue
+│   │   ├── Targets.vue
+│   │   ├── Forecasts.vue
+│   │   └── SalesAssistant.vue
+│   │
+│   ├── components/
+│   │   ├── visits/
+│   │   ├── quotes/
+│   │   ├── geo/
+│   │   ├── ai/
+│   │   └── common/
+│   │
+│   ├── tabs/
+│   │   ├── VisitsTab.vue
+│   │   ├── QuotesTab.vue
+│   │   └── AIInsightsTab.vue
+│   │
+│   ├── services/
+│   │   ├── api.js
+│   │   ├── geo.js
+│   │   ├── visits.js
+│   │   └── quotes.js
+│   │
+│   └── main.js
+│
+└── tests/
+    ├── backend/
+    ├── frontend/
+    └── integration/
+```
+
+---
+
+# 5. Phase 0 — Technical Extension POC
+
+## Goal
+
+Prove that Reckon CRM can extend the existing `/crm` SPA without forking Frappe CRM.
+
+## Deliverables
+
+Codex should implement:
+
+```text
+/crm/visits
+```
+
+Add sidebar item:
+
+```text
+FIELD SALES
+  Field Visits
+```
+
+Add a new tab:
+
+```text
+Visits
+```
+
+to:
+
+```text
+CRM Lead
+CRM Deal
+Mobile Lead
+Mobile Deal
+```
+
+The tab can initially show:
+
+```text
+No visits found.
+Schedule your first visit.
+```
+
+## Important
+
+Codex must not assume Frappe CRM provides an official external tab registry.
+
+Instead create our own internal abstraction:
+
+```javascript
+registerCRMTab({
+    doctype: "CRM Lead",
+    name: "Visits",
+    label: "Visits",
+    component: VisitsTab
+})
+```
+
+Also:
+
+```javascript
+registerCRMRoute({
+    name: "Field Visits",
+    path: "/visits",
+    component: FieldVisits
+})
+```
+
+And:
+
+```javascript
+registerCRMSidebarItem({
+    section: "FIELD SALES",
+    label: "Field Visits",
+    route: "/crm/visits"
+})
+```
+
+The actual adapter can later change if Frappe CRM introduces official extension APIs.
+
+## Acceptance Criteria
+
+```text
+1. bench build succeeds.
+2. Existing Frappe CRM still works.
+3. No source file inside apps/crm is modified.
+4. /crm/visits loads.
+5. Lead page shows Visits.
+6. Deal page shows Visits.
+7. Mobile lead/deal shows Visits.
+8. App uninstall does not break Frappe CRM.
+```
+
+---
+
+# 6. Phase 1 — Field Visit Engine
+
+This is the first real business module.
+
+## Core DocType
+
+Create:
+
+```text
+CRM Field Visit
+```
+
+Do not call it Sales Visit if we want broader CRM usage.
+
+## Fields
+
+```text
+reference_doctype
+reference_name
+
+visit_type
+visit_purpose
+
+planned_date
+planned_start_time
+planned_end_time
+
+assigned_to
+
+customer_location
+
+status
+
+checkin_time
+checkin_latitude
+checkin_longitude
+checkin_accuracy
+
+checkout_time
+checkout_latitude
+checkout_longitude
+
+distance_from_customer
+
+geo_status
+
+outcome
+
+notes
+
+next_followup_date
+
+attachment
+
+photo
+
+signature
+
+duration_minutes
+```
+
+## Suggested Statuses
+
+```text
+Planned
+Started
+Completed
+Cancelled
+Missed
+```
+
+## Geo Status
+
+```text
+Not Checked
+Within Radius
+Outside Radius
+Location Unavailable
+Accuracy Too Low
+```
+
+---
+
+# 7. Customer Location Model
+
+Create:
+
+```text
+CRM Customer Location
+```
+
+Fields:
+
+```text
+location_name
+
+reference_doctype
+reference_name
+
+address
+
+latitude
+longitude
+
+geofence_radius
+
+is_primary
+
+location_type
+```
+
+Example:
+
+```text
+Organization:
+ABC Electronics
+
+Location:
+ABC Electronics - Head Office
+
+Latitude:
+23.xxxxxx
+
+Longitude:
+90.xxxxxx
+
+Allowed Radius:
+100 meters
+```
+
+---
+
+# 8. Geo Check-in Workflow
+
+User opens Lead / Deal / Organization.
+
+Clicks:
+
+```text
+Schedule Visit
+```
+
+or opens:
+
+```text
+My Day
+```
+
+Before check-in:
+
+```text
+Customer location:
+ABC Electronics
+
+Distance:
+82m
+
+Allowed radius:
+100m
+
+Status:
+Within Radius
+```
+
+Then:
+
+```text
+Check In
+```
+
+System saves:
+
+```text
+timestamp
+latitude
+longitude
+accuracy
+distance
+verification result
+user
+device metadata where possible
+```
+
+On checkout:
+
+```text
+Visit Outcome
+Notes
+Next Follow-up
+Photo
+Optional Signature
+```
+
+---
+
+# 9. Visit Integration With Native CRM Timeline
+
+After completion, create an activity entry on the linked CRM record.
+
+Example:
+
+```text
+Field Visit Completed
+Customer: ABC Electronics
+Duration: 42 minutes
+Outcome: Interested
+Next follow-up: 15 Sep 2026
+```
+
+This is important because users should see visit activity inside the normal Frappe CRM Activity tab too.
+
+---
+
+# 10. Phase 1B — My Day
+
+Create page:
+
+```text
+/crm/my-day
+```
+
+Show:
+
+```text
+Today's visits
+
+Nearby customers
+
+Pending follow-ups
+
+Overdue tasks
+
+Active deals
+
+Start Day
+
+End Day
+```
+
+Mobile-oriented.
+
+---
+
+# 11. Field Map
+
+Create:
+
+```text
+/crm/field-map
+```
+
+Show customer markers with categories:
+
+```text
+Lead
+Deal
+Organization
+Planned Visit
+Completed Visit
+Overdue Visit
+```
+
+Do not store unnecessary continuous GPS history initially.
+
+Use customer and visit coordinates first.
+
+---
+
+# 12. Nearby Customers
+
+Create:
+
+```text
+/crm/nearby-customers
+```
+
+Using current user location:
+
+```text
+Within 1 km
+Within 5 km
+Within 10 km
+Within 25 km
+```
+
+Show:
+
+```text
+Organization
+Lead
+Deal
+Distance
+Last visit
+Next follow-up
+```
+
+---
+
+# 13. Phase 1C — HRMS Integration
+
+HRMS must be optional.
+
+Create configuration:
+
+```text
+Reckon CRM Settings
+```
+
+Fields:
+
+```text
+enable_hrms_integration
+sync_day_start_to_employee_checkin
+sync_day_end_to_employee_checkin
+```
+
+Recommended behavior:
+
+```text
+Start Day
+   ↓
+Employee Checkin = IN
+
+Customer Visit
+   ↓
+CRM Field Visit only
+
+Customer Visit
+   ↓
+CRM Field Visit only
+
+End Day
+   ↓
+Employee Checkin = OUT
+```
+
+Do not create HRMS attendance check-ins for every visit unless explicitly enabled later.
+
+---
+
+# 14. Phase 2 — Lead Scoring
+
+Add configurable lead scoring.
+
+Fields:
+
+```text
+lead_score
+lead_grade
+```
+
+Grades:
+
+```text
+A
+B
+C
+D
+```
+
+Sources:
+
+```text
+Source
+Industry
+Company size
+Campaign
+Engagement
+Email response
+WhatsApp response
+Call activity
+Visit activity
+Deal created
+Recent activity
+```
+
+Create DocType:
+
+```text
+CRM Scoring Rule
+```
+
+Example:
+
+```text
+Field:
+source
+
+Operator:
+=
+
+Value:
+Meta Lead Ads
+
+Score:
++10
+```
+
+---
+
+# 15. Phase 2B — Lead Qualification
+
+Fields:
+
+```text
+qualification_status
+budget_status
+authority_status
+need_status
+timeline_status
+```
+
+Optional framework:
+
+```text
+BANT
+```
+
+or configurable.
+
+---
+
+# 16. Deal Health
+
+Add:
+
+```text
+deal_health_score
+deal_health_status
+```
+
+Statuses:
+
+```text
+Healthy
+At Risk
+Stale
+Critical
+```
+
+Factors:
+
+```text
+days since activity
+stage age
+visit status
+email response
+open tasks
+expected close date
+deal amount
+engagement
+```
+
+---
+
+# 17. Sales Process Designer
+
+Build a configurable stage enforcement engine.
+
+Create:
+
+```text
+CRM Sales Process
+CRM Sales Process Stage
+```
+
+Each stage can define:
+
+```text
+required_fields
+required_actions
+required_visit
+required_quote
+required_approval
+exit_conditions
+```
+
+Example:
+
+```text
+Qualification
+   ↓
+Requirement Gathering
+   ↓
+Proposal
+   ↓
+Negotiation
+   ↓
+Closed Won
+```
+
+Prevent movement if required conditions are unmet.
+
+---
+
+# 18. Cadence / Sequence Engine
+
+Create:
+
+```text
+CRM Sales Cadence
+CRM Sales Cadence Step
+CRM Cadence Enrollment
+```
+
+Example:
+
+```text
+Day 0
+Email
+
+Day 2
+WhatsApp
+
+Day 4
+Call
+
+Day 7
+Task
+
+Day 10
+Follow-up email
+```
+
+Use existing communication systems.
+
+Do not rebuild email or WhatsApp engines.
+
+---
+
+# 19. Sales Playbooks
+
+Create:
+
+```text
+CRM Sales Playbook
+```
+
+Use cases:
+
+```text
+Discovery Call
+First Customer Visit
+Demo
+Negotiation
+Renewal
+Lost Deal Review
+```
+
+Could include:
+
+```text
+Questions
+Checklist
+Recommended actions
+Required fields
+AI suggestions
+```
+
+---
+
+# 20. Phase 3 — CRM Products
+
+Create native CRM products independent of ERPNext.
+
+DocType:
+
+```text
+CRM Product
+```
+
+Fields:
+
+```text
+product_code
+product_name
+description
+product_group
+default_uom
+active
+tax_category
+```
+
+---
+
+# 21. CRM Price Book
+
+Create:
+
+```text
+CRM Price Book
+CRM Price Book Item
+```
+
+Support:
+
+```text
+currency
+valid_from
+valid_to
+customer segment
+territory
+product
+rate
+minimum_qty
+```
+
+---
+
+# 22. CRM Quote
+
+Create:
+
+```text
+CRM Quote
+```
+
+and child table:
+
+```text
+CRM Quote Item
+```
+
+Fields:
+
+```text
+deal
+organization
+contact
+
+quote_date
+
+valid_until
+
+currency
+
+price_book
+
+subtotal
+
+discount
+
+tax
+
+grand_total
+
+status
+```
+
+Statuses:
+
+```text
+Draft
+Internal Review
+Approved
+Sent
+Accepted
+Rejected
+Expired
+```
+
+---
+
+# 23. Quote Item
+
+Fields:
+
+```text
+product
+description
+qty
+uom
+rate
+discount
+tax
+amount
+```
+
+---
+
+# 24. Deal Quote Tab
+
+Inside Deal page:
+
+```text
+Activity
+Emails
+Calls
+Tasks
+WhatsApp
+Visits
+Quotes
+AI
+```
+
+Quotes tab should show:
+
+```text
+Quote No
+Date
+Amount
+Status
+Valid Until
+ERPNext Sync Status
+```
+
+Action:
+
+```text
+Create Quote
+```
+
+---
+
+# 25. Optional ERPNext Quotation Sync
+
+ERPNext must be optional.
+
+Configuration:
+
+```text
+Enable ERPNext Integration
+Enable Quotation Sync
+```
+
+Default:
+
+```text
+One-way sync:
+CRM Quote → ERPNext Quotation
+```
+
+Mapping:
+
+```text
+CRM Organization
+    → ERPNext Customer
+
+CRM Contact
+    → Contact
+
+CRM Quote
+    → Quotation
+
+CRM Quote Item
+    → Quotation Item
+
+CRM Product
+    → Item
+
+CRM Price Book
+    → Price List
+```
+
+---
+
+# 26. ERPNext Sync Fields
+
+On `CRM Quote`:
+
+```text
+erpnext_sync_enabled
+
+erpnext_quotation
+
+erpnext_sync_status
+
+erpnext_last_sync
+
+erpnext_sync_error
+```
+
+Statuses:
+
+```text
+Not Synced
+Syncing
+Synced
+CRM Changed
+ERPNext Changed
+Conflict
+Failed
+```
+
+---
+
+# 27. ERPNext Customer Mapping
+
+Create:
+
+```text
+CRM ERP Mapping
+```
+
+or dedicated fields/config.
+
+Customer behavior:
+
+```text
+Require Existing Customer
+
+Create Customer Automatically
+
+Ask Before Creating
+```
+
+Recommended default:
+
+```text
+Ask Before Creating
+```
+
+---
+
+# 28. ERPNext Product Mapping
+
+Fields on CRM Product:
+
+```text
+erpnext_item_code
+```
+
+Optional:
+
+```text
+auto_create_item
+```
+
+Do not auto-create by default.
+
+---
+
+# 29. ERPNext Optional Import Rule
+
+Never do this in common modules:
+
+```python
+from erpnext...
+```
+
+Instead:
+
+```python
+if is_app_installed("erpnext"):
+    ...
+```
+
+and load lazily.
+
+---
+
+# 30. Phase 4 — Territory Management
+
+Create:
+
+```text
+CRM Territory
+```
+
+Support hierarchy:
+
+```text
+Bangladesh
+ ├── Dhaka
+ │   ├── Gulshan
+ │   ├── Banani
+ │   └── Uttara
+ └── Chattogram
+```
+
+Assign:
+
+```text
+users
+leads
+deals
+organizations
+targets
+```
+
+---
+
+# 31. Sales Targets
+
+Create:
+
+```text
+CRM Sales Target
+```
+
+Target dimensions:
+
+```text
+User
+Team
+Territory
+Period
+Product
+```
+
+Measures:
+
+```text
+Revenue Target
+New Deals
+New Customers
+Visits
+Collections
+Quotes
+```
+
+---
+
+# 32. Sales Forecast
+
+Create:
+
+```text
+CRM Forecast
+```
+
+Forecast categories:
+
+```text
+Pipeline
+Best Case
+Commit
+Closed
+Excluded
+```
+
+Use Deal fields:
+
+```text
+forecast_category
+probability
+expected_close_date
+weighted_amount
+```
+
+Formula:
+
+```text
+Weighted Amount =
+Deal Amount × Probability
+```
+
+---
+
+# 33. Account / Organization 360
+
+Organization page should provide:
+
+```text
+contacts
+deals
+visits
+quotes
+emails
+WhatsApp
+calls
+tasks
+notes
+campaigns
+relationship map
+AI summary
+```
+
+---
+
+# 34. Relationship Mapping
+
+Create:
+
+```text
+CRM Relationship
+```
+
+Roles:
+
+```text
+Decision Maker
+Champion
+Influencer
+User
+Blocker
+Finance
+Technical
+Procurement
+```
+
+Useful for enterprise sales.
+
+---
+
+# 35. Campaign Module
+
+Create lightweight CRM campaign functionality.
+
+DocTypes:
+
+```text
+CRM Campaign
+CRM Campaign Member
+```
+
+Fields:
+
+```text
+campaign_name
+channel
+source
+start_date
+end_date
+budget
+actual_cost
+status
+```
+
+Member:
+
+```text
+lead
+contact
+organization
+response_status
+```
+
+---
+
+# 36. Campaign ROI
+
+Metrics:
+
+```text
+Leads
+Qualified Leads
+Deals
+Won Deals
+Revenue
+Spend
+Cost per Lead
+ROI
+```
+
+Meta lead sync should populate campaign/source information when available.
+
+---
+
+# 37. Omnichannel Timeline
+
+Do not rebuild existing channels.
+
+Aggregate:
+
+```text
+Emails
+Calls
+WhatsApp
+Notes
+Tasks
+Visits
+Quotes
+Meetings
+Campaign responses
+AI events
+```
+
+into Activity.
+
+---
+
+# 38. Phase 5 — AI Sales Assistant
+
+Add:
+
+```text
+/crm/ai
+```
+
+and `AI` tab on Lead and Deal.
+
+Capabilities:
+
+```text
+Summarize Lead
+Summarize Deal
+Prepare Meeting Brief
+Prepare Visit Brief
+Suggest Next Best Action
+Draft Follow-up Email
+Draft WhatsApp Message
+Identify Deal Risks
+Explain Deal Health
+Suggest Qualification Questions
+```
+
+---
+
+# 39. AI Provider Architecture
+
+Create provider abstraction.
+
+```python
+class AIProvider:
+    def complete(self, messages, **kwargs):
+        raise NotImplementedError
+```
+
+Providers later:
+
+```text
+OpenAI
+Azure OpenAI
+Anthropic
+Gemini
+Local LLM
+```
+
+Start with OpenAI only if needed.
+
+---
+
+# 40. AI Security Rules
+
+Codex must implement:
+
+```text
+User can only send CRM data to AI
+that the current Frappe user can access.
+```
+
+Never bypass permission checks.
+
+Do not send:
+
+```text
+Passwords
+API keys
+Secrets
+Unrelated records
+```
+
+---
+
+# 41. AI Next Best Action
+
+Example output:
+
+```text
+Recommended next action:
+
+Schedule a technical demo within 2 days.
+
+Reason:
+- Deal is in Qualification for 14 days.
+- Customer opened last two emails.
+- Last visit indicated technical interest.
+- No proposal has been sent.
+```
+
+---
+
+# 42. AI Visit Preparation
+
+Before visit:
+
+```text
+Customer Summary
+
+Last 5 interactions
+
+Open Deals
+
+Outstanding Tasks
+
+Previous Visit Notes
+
+Decision Makers
+
+Potential Risks
+
+Recommended Questions
+```
+
+---
+
+# 43. Post-Visit AI
+
+After checkout:
+
+User can dictate or type notes.
+
+AI generates:
+
+```text
+Visit Summary
+Customer Needs
+Objections
+Commitments
+Next Steps
+Follow-up Tasks
+Suggested Deal Update
+```
+
+---
+
+# 44. UI Sidebar
+
+Recommended final sidebar:
+
+```text
+CRM
+  Notifications
+  Leads
+  Deals
+  Contacts
+  Organizations
+  Notes
+  Tasks
+  Call Logs
+  Email Templates
+
+FIELD SALES
+  My Day
+  Visit Plan
+  Field Visits
+  Nearby Customers
+  Field Map
+
+SALES
+  Products
+  Quotes
+  Territories
+  Targets
+  Forecasts
+  Campaigns
+
+AI
+  Sales Assistant
+  Insights
+
+VIEWS
+  My Leads
+  My Deals
+  My Visits
+```
+
+---
+
+# 45. Lead Detail Tabs
+
+Recommended desktop:
+
+```text
+Activity
+Emails
+Calls
+Tasks
+WhatsApp
+Visits
+AI
+More
+```
+
+Do not overcrowd.
+
+---
+
+# 46. Deal Detail Tabs
+
+Recommended:
+
+```text
+Activity
+Emails
+Calls
+Tasks
+WhatsApp
+Visits
+Quotes
+AI
+```
+
+---
+
+# 47. Mobile Tabs
+
+Show fewer:
+
+```text
+Activity
+WhatsApp
+Visits
+More
+```
+
+Inside More:
+
+```text
+Calls
+Tasks
+Notes
+Quotes
+AI
+```
+
+---
+
+# 48. Lead/Deal Right Panel Enhancements
+
+Use Frappe CRM field/layout system wherever possible.
+
+Lead:
+
+```text
+Lead Score
+Grade
+Territory
+Campaign
+Last Visit
+Next Visit
+Assigned To
+Qualification Status
+```
+
+Deal:
+
+```text
+Health
+Probability
+Forecast Category
+Territory
+Last Visit
+Next Visit
+Latest Quote
+Expected Close
+```
+
+---
+
+# 49. Roles
+
+Create suggested roles:
+
+```text
+Reckon CRM User
+Reckon CRM Sales Executive
+Reckon CRM Sales Manager
+Reckon CRM Field Executive
+Reckon CRM Administrator
+```
+
+---
+
+# 50. Permissions
+
+Example:
+
+## Field Executive
+
+Can:
+
+```text
+Read assigned Leads
+Read assigned Deals
+Create own Visits
+Update own active Visits
+See assigned Organizations
+```
+
+Cannot:
+
+```text
+Delete completed Visit
+View all territories
+Edit global settings
+```
+
+## Manager
+
+Can:
+
+```text
+View team visits
+View team deals
+View maps
+Manage targets
+View forecasts
+```
+
+---
+
+# 51. Geo Security
+
+When checking in:
+
+```text
+verify browser geolocation
+
+store GPS accuracy
+
+calculate server-side distance
+
+store allowed radius
+
+store verification result
+```
+
+Do not trust distance calculated only by frontend.
+
+Backend should calculate using Haversine formula.
+
+---
+
+# 52. Geo Audit Data
+
+Keep:
+
+```text
+latitude
+longitude
+accuracy
+timestamp
+user
+visit
+reference record
+verification result
+```
+
+Optional later:
+
+```text
+IP address
+device info
+mock-location signals
+```
+
+Do not claim reliable anti-spoofing from browser alone.
+
+---
+
+# 53. Background Tracking
+
+Do **not** implement continuous background employee GPS tracking in V1.
+
+Browser/PWA background tracking is unreliable and privacy-sensitive.
+
+Initial scope:
+
+```text
+check-in location
+check-out location
+customer location
+visit route planning
+```
+
+---
+
+# 54. Notifications
+
+Examples:
+
+```text
+Visit starting in 30 minutes
+
+Customer outside allowed geo-radius
+
+Follow-up overdue
+
+Deal stale for 7 days
+
+Quote expiring tomorrow
+
+Target below expected progress
+```
+
+Use Frappe Notifications where practical.
+
+---
+
+# 55. Reports
+
+Initial reports:
+
+```text
+Field Visit Summary
+
+Visits by Employee
+
+Visits by Customer
+
+Visit Outcome Analysis
+
+Lead Conversion
+
+Deal Pipeline
+
+Deal Health
+
+Quote Pipeline
+
+Target vs Achievement
+
+Territory Performance
+
+Campaign ROI
+```
+
+---
+
+# 56. Dashboards
+
+## Field Executive
+
+```text
+Today's Visits
+Pending Follow-ups
+Nearby Customers
+Active Deals
+Monthly Target
+```
+
+## Sales Manager
+
+```text
+Pipeline
+Forecast
+Team Visits
+Lead Conversion
+Deal Risk
+Target Achievement
+```
+
+---
+
+# 57. Coding Standards
+
+Codex must follow:
+
+```text
+Python:
+PEP8
+type hints where practical
+small service classes/functions
+
+JavaScript/Vue:
+Composition API
+small components
+avoid large monolithic pages
+
+No duplicated business logic.
+
+Backend owns:
+validation
+permissions
+money calculations
+geo distance
+sync state
+
+Frontend owns:
+presentation
+interaction
+temporary UI state
+```
+
+---
+
+# 58. Frappe Rules
+
+Always use:
+
+```python
+frappe.get_doc
+frappe.get_all
+frappe.db.get_value
+frappe.has_permission
+frappe.only_for
+```
+
+appropriately.
+
+Do not use unsafe SQL unless necessary.
+
+If SQL is necessary:
+
+```text
+parameterized queries only
+```
+
+---
+
+# 59. API Rules
+
+Whitelisted methods must:
+
+```text
+validate logged-in user
+
+check permissions
+
+validate input
+
+avoid arbitrary doctype access
+
+return structured JSON
+```
+
+Example:
+
+```json
+{
+  "success": true,
+  "data": {},
+  "message": null
+}
+```
+
+---
+
+# 60. Optional App Detection
+
+Create utility:
+
+```python
+def is_app_installed(app_name):
+    return app_name in frappe.get_installed_apps()
+```
+
+Use for:
+
+```text
+erpnext
+hrms
+frappe_whatsapp
+```
+
+---
+
+# 61. Feature Flags
+
+`Reckon CRM Settings`
+
+Include:
+
+```text
+Enable Field Sales
+
+Enable Geo Check-in
+
+Enable HRMS Integration
+
+Enable ERPNext Integration
+
+Enable Quotation Sync
+
+Enable AI
+
+Enable Territory
+
+Enable Forecasting
+```
+
+---
+
+# 62. Testing Strategy
+
+Every phase must include tests.
+
+## Backend
+
+Test:
+
+```text
+permissions
+visit lifecycle
+distance calculation
+quote total
+ERPNext optional behavior
+HRMS optional behavior
+lead scoring
+forecast calculations
+```
+
+## Frontend
+
+Test:
+
+```text
+tab registration
+route registration
+visit forms
+mobile layout
+quote forms
+```
+
+---
+
+# 63. Phase Delivery Strategy
+
+Codex should never attempt the entire system in one pass.
+
+Implement in this order:
+
+```text
+Phase 0
+Extension POC
+
+Phase 1
+Field Visit core
+
+Phase 1B
+My Day + Map + Nearby Customers
+
+Phase 1C
+HRMS integration
+
+Phase 2
+Lead scoring + deal health
+
+Phase 2B
+Sales process + cadence + playbooks
+
+Phase 3
+Products + Price Books + CRM Quote
+
+Phase 3B
+ERPNext quotation sync
+
+Phase 4
+Territories + Targets + Forecasts
+
+Phase 4B
+Campaigns + Account 360
+
+Phase 5
+AI Sales Assistant
+
+Phase 6
+Hardening + tests + migration + docs
+```
+
+---
+
+# 64. Git Workflow
+
+Recommended:
+
+```text
+main
+develop
+feature/*
+```
+
+Example:
+
+```text
+feature/phase-0-extension-poc
+feature/field-visits
+feature/quote-module
+feature/erpnext-sync
+```
+
+Commit examples:
+
+```text
+feat: add field visit doctype
+
+feat: add lead and deal visit tabs
+
+feat: implement geo verification
+
+feat: add CRM quote module
+
+feat: add optional ERPNext quotation sync
+
+fix: enforce visit permission checks
+
+test: add visit geofence tests
+```
+
+---
+
+# 65. Codex AGENTS.md
+
+Put this in the repository root.
+
+```markdown
+# AGENTS.md
+
+## Project
+
+Reckon CRM extends Frappe CRM.
+
+## Critical rules
+
+Never modify upstream Frappe CRM source directly.
+
+Never make ERPNext mandatory.
+
+Never make HRMS mandatory.
+
+Do not replace Frappe CRM Lead, Deal or Organization with ERPNext CRM entities.
+
+Use CRM Lead, CRM Deal, CRM Organization and Contact as the CRM foundation.
+
+All business logic belongs inside reckon_crm.
+
+Any coupling with Frappe CRM frontend must be isolated inside the frontend extension adapter.
+
+Do not rebuild functionality already provided by Frappe CRM unless extension is required.
+
+Reuse existing:
+- Activities
+- Emails
+- Calls
+- Tasks
+- Notes
+- WhatsApp
+- Meta Lead integration
+
+## Optional integrations
+
+ERPNext:
+- optional
+- quotation sync only initially
+
+HRMS:
+- optional
+- day start/end Employee Checkin integration
+
+WhatsApp:
+- reuse Frappe CRM / frappe_whatsapp
+
+## Quality
+
+Every new API must enforce permissions.
+
+Every new DocType must define proper permissions.
+
+Server-side validation is mandatory.
+
+Never trust frontend geolocation validation alone.
+
+Never calculate monetary totals only on the frontend.
+
+All integration failures must be logged without corrupting CRM data.
+
+## Development approach
+
+Implement one phase at a time.
+
+Do not create speculative code for future phases unless required by the current architecture.
+
+Keep commits small.
+
+Run tests before completing a phase.
+```
+
+---
+
+# 66. First Codex Prompt
+
+Give Codex this first:
+
+```text
+You are implementing Phase 0 of the Reckon CRM project.
+
+Repository:
+TechwithZakir/reckon_crm
+
+Read AGENTS.md before changing anything.
+
+Objective:
+Create the technical extension POC for extending Frappe CRM without modifying upstream apps/crm.
+
+Requirements:
+
+1. Scaffold a valid Frappe app named reckon_crm.
+
+2. Treat Frappe CRM as a required dependency.
+
+3. Do not require ERPNext or HRMS.
+
+4. Create a frontend extension architecture under:
+
+frontend/src/extensions/
+
+with:
+- registry
+- adapters
+- compatibility layer
+
+5. Create internal extension APIs:
+
+registerCRMTab()
+registerCRMRoute()
+registerCRMSidebarItem()
+registerCRMAction()
+
+These are Reckon CRM APIs, not assumed upstream APIs.
+
+6. Add a route:
+
+/crm/visits
+
+7. Add a sidebar entry:
+
+FIELD SALES
+  Field Visits
+
+8. Add Visits tab to:
+- CRM Lead desktop
+- CRM Deal desktop
+- CRM Lead mobile
+- CRM Deal mobile
+
+9. The Visits tab may initially render a placeholder:
+
+"No visits found. Schedule your first visit."
+
+10. Do not use DOM mutation hacks.
+
+11. Do not fork frappe/crm.
+
+12. Keep any Frappe CRM version-specific integration inside adapters only.
+
+13. Existing Frappe CRM behavior must remain unchanged.
+
+14. Add README documentation describing the POC.
+
+15. Add tests where practical.
+
+Before coding:
+- inspect the current Frappe CRM package structure
+- identify the safest integration points
+- document any unavoidable version-specific assumptions
+
+Do not move to Phase 1 until Phase 0 works.
+```
+
+---
+
+# 67. Second Codex Prompt — Field Visit
+
+After Phase 0 works:
+
+```text
+Implement Phase 1: CRM Field Visit.
+
+Read AGENTS.md first.
+
+Create:
+- CRM Field Visit
+- CRM Customer Location
+
+CRM Field Visit must support generic links to:
+- CRM Lead
+- CRM Deal
+- CRM Organization
+
+Use:
+reference_doctype
+reference_name
+
+Implement:
+- planned visit
+- assigned user
+- customer location
+- geo check-in
+- geo verification
+- geo checkout
+- visit outcome
+- notes
+- next follow-up
+- duration
+
+Server-side geofence validation is mandatory.
+
+Distance must be calculated server-side.
+
+Use Haversine distance.
+
+Add:
+- Schedule Visit action
+- Visit history in Visits tab
+- Field Visits list page
+- Visit detail UI
+
+When a visit is completed, create a visible CRM activity entry on the linked record.
+
+Do not implement HRMS yet.
+```
+
+---
+
+# 68. Third Codex Prompt — CRM Quote
+
+Later:
+
+```text
+Implement CRM-native quotation management.
+
+Create:
+- CRM Product
+- CRM Price Book
+- CRM Price Book Item
+- CRM Quote
+- CRM Quote Item
+
+CRM Quote must link to:
+- CRM Deal
+- CRM Organization
+- Contact
+
+Do not use ERPNext Item or Quotation as the core models.
+
+Add Quotes tab to CRM Deal.
+
+Add Create Quote action.
+
+Calculate totals server-side.
+
+ERPNext sync must not be implemented in this phase.
+```
+
+---
+
+# 69. Fourth Codex Prompt — ERPNext Sync
+
+```text
+Implement optional ERPNext quotation synchronization.
+
+ERPNext must remain optional.
+
+Initial direction:
+CRM Quote → ERPNext Quotation
+
+Do not implement automatic two-way sync yet.
+
+Map:
+CRM Organization → Customer
+CRM Contact → Contact
+CRM Product → Item
+CRM Price Book → Price List
+CRM Quote → Quotation
+CRM Quote Item → Quotation Item
+
+Add sync fields:
+erpnext_quotation
+erpnext_sync_status
+erpnext_last_sync
+erpnext_sync_error
+
+Statuses:
+Not Synced
+Syncing
+Synced
+CRM Changed
+Failed
+
+All ERPNext imports must be lazy and guarded.
+
+If ERPNext is not installed:
+Reckon CRM must continue functioning normally.
+```
+
+---
+
+This gives you a strong foundation for Codex because the architecture, implementation order, boundaries, and acceptance criteria are all explicit.
+
+The most important thing is to **feed Codex one phase at a time**, not the whole application as a single coding request. That will dramatically reduce architectural drift and broken integration.
