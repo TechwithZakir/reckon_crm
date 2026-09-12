@@ -20,6 +20,9 @@ class CRMFieldVisit(Document):
         previous = self.get_doc_before_save()
         if (self.is_new() and self.get("calendar_event")) or (previous and self.get("calendar_event") != previous.get("calendar_event")):
             frappe.throw("Calendar event links are managed by the visit.")
+        for field in ("crm_task", "employee_checkin", "employee_checkout"):
+            if (self.is_new() and self.get(field)) or (previous and self.get(field) != previous.get(field)):
+                frappe.throw("Integration links are managed by the visit.")
         for fieldname in ("attachment", "photo"):
             file_url = self.get(fieldname)
             if file_url and (not previous or file_url != previous.get(fieldname)):
@@ -71,12 +74,12 @@ class CRMFieldVisit(Document):
             frappe.throw("Next follow-up cannot be in the past.")
 
     def on_update(self):
-        from reckon_crm.services.calendar import sync_visit
+        from reckon_crm.services.sync import sync_visit
         sync_visit(self)
 
     def on_trash(self):
         if self.status != "Planned":
             frappe.throw("Only planned visits may be deleted.")
-        if self.get("calendar_event"):
-            from reckon_crm.services.calendar import sync_visit
+        if self.get("calendar_event") or self.get("crm_task"):
+            from reckon_crm.services.sync import sync_visit
             sync_visit(self, status="Cancelled")

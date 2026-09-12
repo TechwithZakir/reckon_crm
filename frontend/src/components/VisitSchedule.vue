@@ -19,15 +19,15 @@
         <label>Date<input v-model="form.planned_date" type="date" required /></label>
         <label>Start time<input v-model="form.planned_start_time" type="time" /></label>
         <label>End time<input v-model="form.planned_end_time" type="time" /></label>
-        <label v-if="context.can_assign">Assigned user email<input v-model="form.assigned_to" required /></label>
         <label>Customer location<select v-model="form.customer_location">
           <option value="">No location — check-in will be unverified</option>
           <option v-for="location in locations" :key="location.name" :value="location.name">{{ location.location_name }} · {{ location.geofence_radius }}m</option>
         </select></label>
       </div>
+      <AssigneeSelect v-if="context.can_assign" v-model="assignedUsers" :doctype="form.reference_doctype" :docname="form.reference_name" />
       <LocationMap v-if="selectedLocation" :latitude="selectedLocation.latitude" :longitude="selectedLocation.longitude" />
       <label>Purpose<textarea v-model="form.visit_purpose" required maxlength="2000" rows="2" /></label>
-      <p class="rv-footnote">Saved visits sync to Calendar. Without a start time, the visit is an all-day event; a start time without an end reserves one hour.</p>
+      <p class="rv-footnote">Calendar sync: {{ context.settings?.sync_calendar ? 'On' : 'Off' }} · Task sync: {{ context.settings?.sync_tasks ? 'On' : 'Off' }}. Date-only calendar events are all-day; start-only events reserve one hour.</p>
       <p v-if="error" class="rv-error" role="alert">{{ error }}</p>
       <div class="rv-actions"><button class="rv-primary" :disabled="busy" type="submit">{{ busy ? 'Saving…' : 'Schedule visit' }}</button>
         <button type="button" @click="$emit('cancel')" :disabled="busy">Cancel</button>
@@ -43,7 +43,7 @@
         <label>Allowed radius (metres)<input v-model="location.geofence_radius" type="number" min="1" max="10000" required /></label>
       </div>
       <label>Address<textarea v-model="location.address" rows="2" /></label>
-      <LocationMap :latitude="location.latitude" :longitude="location.longitude" />
+      <LocationMap :latitude="location.latitude" :longitude="location.longitude" :radius="location.geofence_radius" editable @pick="pickLocation" />
       <div class="rv-actions"><button :disabled="busy" type="button" @click="locate">Use current location</button><button :disabled="busy" type="submit">Save location</button></div>
     </form>
   </section>
@@ -52,6 +52,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import LocationMap from './LocationMap.vue'
+import AssigneeSelect from './AssigneeSelect.vue'
 import { api } from '../services/api.js'
 import { currentPosition } from '../services/geo.js'
 const props = defineProps({ doctype: String, docname: String, context: { type: Object, required: true } })
@@ -59,7 +60,8 @@ const emit = defineEmits(['saved', 'cancel'])
 const today = new Date()
 const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 const form = reactive({ reference_doctype: props.doctype || 'CRM Lead', reference_name: props.docname || '', visit_type: 'Customer Visit',
-  visit_purpose: '', planned_date: localDate, planned_start_time: '', planned_end_time: '', assigned_to: props.context.user, customer_location: '' })
+  visit_purpose: '', planned_date: localDate, planned_start_time: '', planned_end_time: '', customer_location: '' })
+const assignedUsers = ref([props.context.user])
 const records = ref([]), locations = ref([]), search = ref(''), error = ref(''), busy = ref(false), showLocation = ref(false)
 const location = reactive({ location_name: '', latitude: '', longitude: '', geofence_radius: 100, address: '' })
 const selectedLocation = computed(() => locations.value.find(item => item.name === form.customer_location))
@@ -74,7 +76,8 @@ async function loadLocations() {
   if (!form.reference_name) return
   await run(async () => { locations.value = await api('geo.locations', { reference_doctype: form.reference_doctype, reference_name: form.reference_name }, 'GET') })
 }
-async function submit() { await run(async () => emit('saved', await api('visits.schedule', { data: form }))) }
+async function submit() { await run(async () => { const visits = await api('visits.schedule_many', { data: form, users: assignedUsers.value }); emit('saved', visits[0]) }) }
+function pickLocation(position) { location.latitude = position.latitude; location.longitude = position.longitude }
 async function locate() { await run(async () => { const position = await currentPosition(); location.latitude = position.latitude; location.longitude = position.longitude }) }
 async function saveLocation() {
   await run(async () => {

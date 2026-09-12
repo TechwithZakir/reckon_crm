@@ -20,8 +20,8 @@ def status():
         return {"ready": False, "reason": "Reckon renderer hook is missing. Clear the site cache and restart Bench."}
     result = ReckonCRMPage("crm").asset_status()
     assets_ready = result["ready"]
-    result["schema_ready"] = all(frappe.db.exists("DocType", name) for name in ("CRM Field Visit", "CRM Customer Location"))
-    result["schema_ready"] = result["schema_ready"] and frappe.db.has_column("CRM Field Visit", "calendar_event")
+    result["schema_ready"] = all(frappe.db.exists("DocType", name) for name in ("CRM Field Visit", "CRM Customer Location", "Reckon CRM Settings"))
+    result["schema_ready"] = result["schema_ready"] and all(frappe.db.has_column("CRM Field Visit", field) for field in ("calendar_event", "crm_task", "employee_checkin", "employee_checkout"))
     if not result["schema_ready"]:
         result["migrate_command"] = "bench --site YOUR_SITE migrate"
         if result["ready"]:

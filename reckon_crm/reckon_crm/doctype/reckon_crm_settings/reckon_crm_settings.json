@@ -1,0 +1,12 @@
+{
+  "doctype": "DocType", "name": "Reckon CRM Settings", "module": "Reckon CRM",
+  "issingle": 1, "track_changes": 1,
+  "field_order": ["sync_calendar", "sync_tasks", "sync_employee_checkin", "skip_auto_attendance"],
+  "fields": [
+    {"fieldname":"sync_calendar","fieldtype":"Check","label":"Sync visits to Calendar","default":"1"},
+    {"fieldname":"sync_tasks","fieldtype":"Check","label":"Create and sync assigned CRM Tasks","default":"0"},
+    {"fieldname":"sync_employee_checkin","fieldtype":"Check","label":"Sync visit check-in/out to Employee Checkin","default":"0","description":"Requires HRMS, an active Employee linked to each user, and Employee Checkin creation permission."},
+    {"fieldname":"skip_auto_attendance","fieldtype":"Check","label":"Skip auto attendance for visit logs","default":"1","description":"Disable only if visit IN/OUT logs should participate in HRMS attendance calculations."}
+  ],
+  "permissions": [{"role":"System Manager","read":1,"write":1,"create":1}]
+}

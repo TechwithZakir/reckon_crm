@@ -16,6 +16,9 @@
     "assigned_to",
     "customer_location",
     "calendar_event",
+    "crm_task",
+    "employee_checkin",
+    "employee_checkout",
     "status",
     "checkin_time",
     "checkin_latitude",
@@ -43,6 +46,9 @@
     "signature"
   ],
   "fields": [
+    {"fieldname":"crm_task","fieldtype":"Link","label":"CRM Task","options":"CRM Task","read_only":1,"no_copy":1,"unique":1},
+    {"fieldname":"employee_checkin","fieldtype":"Data","label":"Employee IN log","read_only":1,"no_copy":1},
+    {"fieldname":"employee_checkout","fieldtype":"Data","label":"Employee OUT log","read_only":1,"no_copy":1},
     {
       "fieldname": "calendar_event",
       "fieldtype": "Link",

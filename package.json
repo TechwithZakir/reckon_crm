@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "license": "GPL-3.0-or-later",
-  "engines": { "node": ">=20.19" },
+  "engines": {
+    "node": ">=20.19"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
     "check:compatibility": "node scripts/check-compatibility.mjs",
@@ -13,5 +15,8 @@
   },
   "devDependencies": {
     "@vue/compiler-sfc": "3.5.13"
+  },
+  "dependencies": {
+    "leaflet": "1.9.4"
   }
 }

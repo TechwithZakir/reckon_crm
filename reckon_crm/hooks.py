@@ -16,6 +16,10 @@ after_uninstall = "reckon_crm.install.clear_website_cache"
 page_renderer = ["reckon_crm.integrations.crm.renderer.ReckonCRMPage"]
 
 doc_events = {
+    "CRM Task": {
+        "validate": "reckon_crm.services.task_sync.guard_task",
+        "on_trash": "reckon_crm.services.task_sync.guard_task",
+    },
     "Event": {
         "validate": "reckon_crm.services.calendar.guard_event",
         "on_trash": "reckon_crm.services.calendar.guard_event",

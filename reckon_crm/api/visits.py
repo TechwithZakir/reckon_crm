@@ -20,8 +20,44 @@ def payload(value, allowed):
 @frappe.whitelist(methods=["GET"])
 def context():
     logged_in()
+    from reckon_crm.services.settings import get_settings
     return response({"user": frappe.session.user, "can_assign": is_manager(),
+                     "can_manage_settings": frappe.session.user == "Administrator" or "System Manager" in frappe.get_roles(),
+                     "settings": get_settings(),
                      "can_create": bool(frappe.has_permission("CRM Field Visit", "create"))})
+
+
+@frappe.whitelist(methods=["GET"])
+def assignees(reference_doctype, reference_name, search=""):
+    logged_in()
+    reference_doc(reference_doctype, reference_name)
+    if not isinstance(search, str) or len(search) > 100:
+        frappe.throw("Invalid user search.")
+    if not is_manager():
+        return response([{"name": frappe.session.user, "full_name": frappe.session.user}])
+    # Only managers may enumerate enabled system users; return names only and
+    # filter CRM role/reference access before offering assignment.
+    users = frappe.get_all("User", filters={"enabled": 1, "user_type": "System User"},
+        or_filters={"name": ["like", f"%{search}%"], "full_name": ["like", f"%{search}%"]},
+        fields=["name", "full_name"], order_by="full_name asc", limit_page_length=100)
+    return response([u for u in users if (u.name == "Administrator" or
+        set(frappe.get_roles(u.name)).intersection({"Sales User", "Sales Manager", "System Manager"}))
+        and frappe.has_permission(reference_doctype, "read", reference_name, user=u.name)])
+
+
+@frappe.whitelist(methods=["POST"])
+def schedule_many(data, users):
+    logged_in()
+    users = frappe.parse_json(users) if isinstance(users, str) else users
+    if not isinstance(users, list) or not 1 <= len(users) <= 25 or any(not isinstance(u, str) or not u for u in users):
+        frappe.throw("Select between 1 and 25 users.")
+    users = list(dict.fromkeys(users))
+    if not is_manager() and users != [frappe.session.user]:
+        frappe.throw("You may only schedule visits for yourself.", frappe.PermissionError)
+    data = payload(data, ("reference_doctype", "reference_name", "visit_type", "visit_purpose",
+                         "planned_date", "planned_start_time", "planned_end_time", "customer_location"))
+    # No commits: any failed visit/integration rolls back the whole batch.
+    return response([schedule({**data, "assigned_to": user})["data"] for user in users])
 
 
 @frappe.whitelist(methods=["GET"])
@@ -76,6 +112,9 @@ def schedule(data):
 
 @frappe.whitelist(methods=["POST"])
 def sync_calendar(name):
+    from reckon_crm.services.settings import get_settings
+    if not get_settings()["sync_calendar"]:
+        frappe.throw("Calendar sync is disabled in Reckon CRM Settings.")
     doc = visit_service.locked_visit(name)
     if doc.status not in ("Planned", "Started"):
         frappe.throw("Only active visits can be added to the calendar.")

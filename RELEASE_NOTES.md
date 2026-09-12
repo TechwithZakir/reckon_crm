@@ -5,6 +5,26 @@ is not a published release. Preserve previous entries when adding new versions.
 
 ## Unreleased
 
+### Visit action visibility
+
+#### Fixed
+
+- Visit rows now explicitly show Open visit / Check in, Check out, or View details,
+  according to status and the current assignee. Started visits show Check out.
+- Opening a visit closes scheduling, scrolls to the details and moves keyboard
+  focus there. Added loading feedback and guarded against stale detail responses
+  when switching CRM records or opening another visit.
+- Display saved check-in and check-out coordinate maps in visit details and explain
+  when the current user is not the assignee. Location errors now distinguish denied
+  permission, timeout and unavailable positioning, with browser-permission guidance.
+- This change does not deploy the code or complete the requested multi-user,
+  settings, task/HRMS sync, map redesign and native-theme improvements.
+
+#### Validation
+
+- 10 frontend tests and the production build passed locally. Live site behavior
+  and real device permission prompts remain pending verification.
+
 ### Visit scheduling improvements (0.2.1)
 
 #### Added
