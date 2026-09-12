@@ -5,6 +5,66 @@ is not a published release. Preserve previous entries when adding new versions.
 
 ## Unreleased
 
+### Field visit integrations and interactive maps (0.3.0)
+
+#### Added
+
+- System Manager-controlled **Visit settings** in the Visits workspace for native
+  Calendar, CRM Task, and optional HRMS Employee Checkin sync. Calendar defaults
+  on; Task and HRMS sync default off. Settings change future saves only.
+- Manager multi-user selector that searches enabled, CRM-role users who can read
+  the selected CRM record. Scheduling creates an independently attributable visit
+  per selected user, up to 25, rather than sharing one check-in/out record.
+- One-way CRM Task synchronization when enabled, including assignee, linked CRM
+  record, planned timing, status, and protected task link. Native Task assignment
+  behavior continues to run.
+- Optional Employee Checkin IN/OUT synchronization on actual visit transitions.
+  It resolves the assigned user’s single active Employee, persists server-captured
+  coordinates when available, and lets native HRMS geofence, shift, duplicate, and
+  attendance validation run. The setting can skip auto-attendance by default.
+- An interactive Leaflet/OpenStreetMap map with native-looking controls: zoom/pan,
+  click-to-select customer location, radius circle, Fetch geolocation, retryable
+  tile error, and saved/captured visit markers.
+
+#### Changed
+
+- Reworked visit styling to use Frappe CRM surface, ink, outline, spacing, and
+  button tokens instead of custom green controls.
+- Calendar, Task, and HRMS integrations are server-side, settings-gated, and use
+  server-owned links. A failure aborts the triggering visit action; no integration
+  is silently reported as complete.
+- HRMS sync now uses the server-only lifecycle direction marked at check-in or
+  check-out, rather than relying on framework-specific previous-document timing.
+- Version is 0.3.0. Migration now creates Reckon CRM Settings and adds Task and
+  HRMS-link fields to CRM Field Visit.
+
+#### Fixed
+
+- Replaced the static map iframe with the requested interactive map experience.
+- Removed the duplicate location-fetch action; Fetch geolocation is now part of
+  the interactive map, where its resulting marker is immediately visible.
+- Location failure messages now explain denied permission, timeout, and device
+  service failure. The browser owns the permission prompt; the user can retry
+  Fetch geolocation after granting access.
+
+#### Validation and limitations
+
+- 41 local Python tests, 10 frontend tests, and a production build against
+  inspected CRM develop passed. Tests cover disabled settings, multi-assignment
+  de-duplication and limits, sync routing, HRMS requirement/user/employee checks,
+  integration failure propagation, and coordinate handling.
+- Live Bench migration, Frappe 15/16/latest runtime behavior, Calendar/Task
+  permissions, actual browser permission prompts, HRMS Employee Checkin creation,
+  map tiles, CSP, and transactions remain pending verification.
+- Interactive maps use OpenStreetMap tiles and send tile requests/coordinates to
+  that provider; internet access and CSP `img-src` access to tile.openstreetmap.org
+  are required. There is no offline map or continuous tracking.
+- HRMS is not imported by common modules. Enabling its setting requires HRMS and
+  a migrated Employee Checkin schema; it does not create attendance records itself.
+- Integration-managed Event and CRM Task records cannot be edited or deleted
+  directly; update the visit. Disabling an integration pauses future updates and
+  preserves existing linked records.
+
 ### Visit action visibility
 
 #### Fixed
@@ -17,8 +77,6 @@ is not a published release. Preserve previous entries when adding new versions.
 - Display saved check-in and check-out coordinate maps in visit details and explain
   when the current user is not the assignee. Location errors now distinguish denied
   permission, timeout and unavailable positioning, with browser-permission guidance.
-- This change does not deploy the code or complete the requested multi-user,
-  settings, task/HRMS sync, map redesign and native-theme improvements.
 
 #### Validation
 

@@ -48,6 +48,7 @@ def check_in(name, latitude=None, longitude=None, accuracy=None):
     doc.update({"status": "Started", "checkin_time": now_datetime(), "checkin_latitude": lat,
                 "checkin_longitude": lon, "checkin_accuracy": precision, "checkin_by": frappe.session.user})
     doc.flags.reckon_transition = TRANSITION_TOKEN
+    doc.flags.reckon_employee_direction = "IN"
     doc.save()
     return doc
 
@@ -81,6 +82,7 @@ def check_out(name, outcome, notes="", next_followup_date=None, latitude=None, l
                 "duration_minutes": round(duration, 2), "outcome": outcome.strip(), "notes": notes,
                 "next_followup_date": next_followup_date or None})
     doc.flags.reckon_transition = TRANSITION_TOKEN
+    doc.flags.reckon_employee_direction = "OUT"
     doc.save()
     # Same database transaction as completion; a failure rolls back both writes.
     reference = reference_doc(doc.reference_doctype, doc.reference_name)

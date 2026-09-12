@@ -4,11 +4,12 @@ Reckon CRM extends the existing Frappe CRM experience at `/crm`.
 It uses native CRM Lead, CRM Deal, CRM Organization, Contact, activities,
 communications, and tasks. ERPNext and HRMS are optional future integrations.
 
-**Current milestone: Phase 1 Field Visit engine (0.2.0, unreleased).** Visit
-scheduling, customer locations, action-time GPS, check-in/check-out, and history
+**Current milestone: Phase 1 Field Visit engine (0.3.0, unreleased).** Visit
+scheduling, multi-user assignments, configurable Calendar/CRM Task/optional HRMS
+sync, interactive customer maps, action-time GPS, check-in/check-out, and history
 are implemented locally. Deployment and database acceptance remain pending.
 The user authorized Phase 1 development while remaining Phase 0 checks stay open.
-Quotations, maps/My Day, optional integrations, and AI belong to later phases.
+Quotations, My Day, and AI belong to later phases.
 
 See [release notes](RELEASE_NOTES.md) for implemented features, changes, fixes,
 validation results, and known limitations. Update them with every change set.
@@ -18,8 +19,13 @@ validation results, and known limitations. Update them with every change set.
 - `/crm/visits` inside CRM's existing router and application layout.
 - `FIELD SALES → Field Visits` in the existing sidebar, including its mobile drawer.
 - A `Visits` tab on Lead and Deal pages, on desktop and mobile.
-- Schedule visits against CRM Lead, CRM Deal, or CRM Organization, with an
-  assigned CRM user, date/time, purpose, and optional customer location.
+- Schedule separate visits for up to 25 eligible CRM users against CRM Lead,
+  CRM Deal, or CRM Organization, with date/time, purpose, and customer location.
+- Interactive OpenStreetMap view with zoom/pan, click-to-select customer location,
+  geofence radius display, and captured check-in/check-out markers.
+- System Manager settings to enable Calendar Events, CRM Tasks, and optional HRMS
+  Employee Checkin IN/OUT logs independently. All optional sync paths are off
+  except Calendar by default; HRMS remains optional.
 - Server-calculated geofence previews and check-in/check-out, including explicit
   unverified operation when GPS is unavailable. No background tracking.
 - Immutable completed visits with outcome, notes, follow-up date, duration,

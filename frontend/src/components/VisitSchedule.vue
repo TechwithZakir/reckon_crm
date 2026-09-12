@@ -44,7 +44,7 @@
       </div>
       <label>Address<textarea v-model="location.address" rows="2" /></label>
       <LocationMap :latitude="location.latitude" :longitude="location.longitude" :radius="location.geofence_radius" editable @pick="pickLocation" />
-      <div class="rv-actions"><button :disabled="busy" type="button" @click="locate">Use current location</button><button :disabled="busy" type="submit">Save location</button></div>
+      <div class="rv-actions"><button :disabled="busy" type="submit">Save location</button></div>
     </form>
   </section>
 </template>
@@ -54,7 +54,6 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import LocationMap from './LocationMap.vue'
 import AssigneeSelect from './AssigneeSelect.vue'
 import { api } from '../services/api.js'
-import { currentPosition } from '../services/geo.js'
 const props = defineProps({ doctype: String, docname: String, context: { type: Object, required: true } })
 const emit = defineEmits(['saved', 'cancel'])
 const today = new Date()
@@ -78,7 +77,6 @@ async function loadLocations() {
 }
 async function submit() { await run(async () => { const visits = await api('visits.schedule_many', { data: form, users: assignedUsers.value }); emit('saved', visits[0]) }) }
 function pickLocation(position) { location.latitude = position.latitude; location.longitude = position.longitude }
-async function locate() { await run(async () => { const position = await currentPosition(); location.latitude = position.latitude; location.longitude = position.longitude }) }
 async function saveLocation() {
   await run(async () => {
     const saved = await api('geo.create_location', { data: { ...location, reference_doctype: form.reference_doctype, reference_name: form.reference_name } })

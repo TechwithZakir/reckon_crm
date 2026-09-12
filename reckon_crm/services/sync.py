@@ -9,12 +9,10 @@ def sync_visit(visit, status=None):
     if settings["sync_tasks"]:
         from reckon_crm.services.task_sync import sync_task
         sync_task(visit, status)
-    # HRMS logs are generated only at the actual transition, never retroactively
-    # on an ordinary save or when settings are enabled later.
-    previous = visit.get_doc_before_save()
-    if not status and settings["sync_employee_checkin"] and previous and previous.status != visit.status:
+    # The server-only lifecycle action marks the exact transition before save.
+    # Do not infer it from get_doc_before_save() in on_update: framework versions
+    # differ in when that snapshot remains available.
+    direction = visit.flags.get("reckon_employee_direction")
+    if not status and settings["sync_employee_checkin"] and direction in ("IN", "OUT"):
         from reckon_crm.services.hrms_sync import sync_log
-        if visit.status == "Started":
-            sync_log(visit, "IN", settings)
-        elif visit.status == "Completed":
-            sync_log(visit, "OUT", settings)
+        sync_log(visit, direction, settings)

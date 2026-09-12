@@ -1,4 +1,4 @@
-# Phase 1 — Field visits (0.2.1, unreleased)
+# Phase 1 — Field visits (0.3.0, unreleased)
 
 ## Deploy to the correct site
 
@@ -21,18 +21,43 @@ Restart production workers using your normal deployment procedure and reload
 Building alone does not create database tables. No ERPNext/HRMS installation is
 required. Existing CRM roles are reused: Sales User, Sales Manager, System Manager.
 
-Version 0.2.1 also adds the `calendar_event` field. Run migration even if the visit
-DocTypes already exist. Scheduling now requires native Event creation permission;
-a calendar failure rolls back the visit save. No upstream CRM files are modified.
+Version 0.3.0 adds `calendar_event`, `crm_task`, `employee_checkin`, and
+`employee_checkout` fields plus **Reckon CRM Settings**. Run migration even if the
+visit DocTypes already exist. No upstream CRM files are modified.
+
+## Settings, multi-user visits, and optional integrations
+
+System Managers open **Visit settings** in the Visits workspace. The switches are:
+
+| Switch | Default | Behavior |
+| --- | --- | --- |
+| Calendar | On | Creates/updates a private native Event per visit. |
+| CRM Task | Off | Creates/updates a native CRM Task per visit. |
+| Employee Checkin | Off | On actual check-in/out, creates HRMS IN/OUT logs. |
+| Skip auto attendance | On | Keeps HRMS visit logs out of auto attendance. |
+
+Managers select one or more eligible users; each person receives a separate visit
+record and can only check in/out their own record. The selector shows at most 100
+eligible users and allows a maximum of 25 selected users. Scheduling is atomic:
+an invalid user or failed enabled integration rolls back the submitted batch.
+
+HRMS sync requires HRMS, an active Employee linked to each user, Employee Checkin
+creation permission, and HRMS-compatible coordinate fields. Native HRMS shift,
+geofence, duplicate log, and attendance checks run normally. Reckon does not import
+HRMS unless the setting is enabled at runtime.
 
 ## Maps and native calendar sync
 
-The scheduling form previews entered coordinates and the selected saved customer
-location using OpenStreetMap. The map has a marker, zoom controls and a larger-map
-link; it does not change coordinates when clicked. Coordinates go to OpenStreetMap,
-so internet access is required. Sites with a custom Content Security Policy must
-allow `https://www.openstreetmap.org` in `frame-src`. Manual fields remain usable
-when map content cannot load; no API key is needed.
+The scheduling form has an interactive Leaflet/OpenStreetMap map: pan, zoom, click
+to select a customer location, see the geofence radius, or choose **Fetch
+geolocation** to request browser location. Check-in/out details show captured
+markers. The browser displays its own permission prompt; if permission was blocked,
+allow Location in the address-bar site settings and retry Fetch geolocation.
+
+Maps require internet access to `https://tile.openstreetmap.org`; no API key is
+needed. A custom Content Security Policy must allow that host in `img-src`.
+Coordinates remain usable if map tiles fail. There is no offline map, background
+tracking, or anti-spoofing claim.
 
 Each newly saved visit creates one private Event owned by its creator, with the
 assignee as a participant. Date-only visits span the day; start-only visits reserve

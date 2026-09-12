@@ -32,7 +32,7 @@ class SyncTests(unittest.TestCase):
         self.hrms = importlib.reload(importlib.import_module("reckon_crm.services.hrms_sync"))
         self.sync = importlib.reload(importlib.import_module("reckon_crm.services.sync"))
         self.visit = Record(name="VISIT-1", assigned_to="sales@example.invalid", status="Started", checkin_time="2026-09-12 10:00:00",
-            checkin_latitude=0,checkin_longitude=0,geo_status="Within Radius",get_doc_before_save=lambda:Record(status="Planned"))
+            checkin_latitude=0,checkin_longitude=0,geo_status="Within Radius",flags=Record())
         self.visit.db_set = lambda key,value,**kwargs:self.visit.update({key:value})
 
     def test_disabled_sync_never_touches_optional_apps_or_records(self):
@@ -67,12 +67,11 @@ class SyncTests(unittest.TestCase):
         self.hrms.sync_log(self.visit,"IN",self.options)
         self.log.insert.assert_called_once()
 
-    def test_hrms_is_only_called_on_transition_and_propagates_failure(self):
+    def test_hrms_is_only_called_on_server_marked_transition_and_propagates_failure(self):
         self.frappe.get_single.return_value.sync_employee_checkin = 1
-        self.visit.get_doc_before_save = lambda:Record(status="Started")
         self.sync.sync_visit(self.visit)
         self.frappe.new_doc.assert_not_called()
-        self.visit.get_doc_before_save = lambda:Record(status="Planned")
+        self.visit.flags.reckon_employee_direction = "IN"
         with self.assertRaisesRegex(ValueError,"HRMS"): self.sync.sync_visit(self.visit)
         self.assertIsNone(self.visit.employee_checkin)
 
