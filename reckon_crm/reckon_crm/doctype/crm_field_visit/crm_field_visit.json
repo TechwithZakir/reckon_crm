@@ -15,6 +15,7 @@
     "planned_end_time",
     "assigned_to",
     "customer_location",
+    "calendar_event",
     "status",
     "checkin_time",
     "checkin_latitude",
@@ -42,6 +43,15 @@
     "signature"
   ],
   "fields": [
+    {
+      "fieldname": "calendar_event",
+      "fieldtype": "Link",
+      "label": "Calendar Event",
+      "options": "Event",
+      "read_only": 1,
+      "no_copy": 1,
+      "unique": 1
+    },
     {
       "fieldname": "reference_doctype",
       "fieldtype": "Select",

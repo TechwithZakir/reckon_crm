@@ -25,7 +25,9 @@
           <option v-for="location in locations" :key="location.name" :value="location.name">{{ location.location_name }} · {{ location.geofence_radius }}m</option>
         </select></label>
       </div>
+      <LocationMap v-if="selectedLocation" :latitude="selectedLocation.latitude" :longitude="selectedLocation.longitude" />
       <label>Purpose<textarea v-model="form.visit_purpose" required maxlength="2000" rows="2" /></label>
+      <p class="rv-footnote">Saved visits sync to Calendar. Without a start time, the visit is an all-day event; a start time without an end reserves one hour.</p>
       <p v-if="error" class="rv-error" role="alert">{{ error }}</p>
       <div class="rv-actions"><button class="rv-primary" :disabled="busy" type="submit">{{ busy ? 'Saving…' : 'Schedule visit' }}</button>
         <button type="button" @click="$emit('cancel')" :disabled="busy">Cancel</button>
@@ -41,13 +43,15 @@
         <label>Allowed radius (metres)<input v-model="location.geofence_radius" type="number" min="1" max="10000" required /></label>
       </div>
       <label>Address<textarea v-model="location.address" rows="2" /></label>
+      <LocationMap :latitude="location.latitude" :longitude="location.longitude" />
       <div class="rv-actions"><button :disabled="busy" type="button" @click="locate">Use current location</button><button :disabled="busy" type="submit">Save location</button></div>
     </form>
   </section>
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
+import LocationMap from './LocationMap.vue'
 import { api } from '../services/api.js'
 import { currentPosition } from '../services/geo.js'
 const props = defineProps({ doctype: String, docname: String, context: { type: Object, required: true } })
@@ -58,6 +62,7 @@ const form = reactive({ reference_doctype: props.doctype || 'CRM Lead', referenc
   visit_purpose: '', planned_date: localDate, planned_start_time: '', planned_end_time: '', assigned_to: props.context.user, customer_location: '' })
 const records = ref([]), locations = ref([]), search = ref(''), error = ref(''), busy = ref(false), showLocation = ref(false)
 const location = reactive({ location_name: '', latitude: '', longitude: '', geofence_radius: 100, address: '' })
+const selectedLocation = computed(() => locations.value.find(item => item.name === form.customer_location))
 async function run(action) {
   busy.value = true; error.value = ''
   try { await action() } catch (e) { error.value = e.message } finally { busy.value = false }

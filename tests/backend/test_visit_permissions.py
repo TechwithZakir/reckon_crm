@@ -73,6 +73,17 @@ class VisitPermissionTests(unittest.TestCase):
         self.frappe.get_roles.return_value = ["Sales Manager"]
         self.assertFalse(self.permissions.document_permission(self.visit("Completed"), ptype="write"))
 
+    def test_calendar_link_cannot_be_injected_or_replaced(self):
+        doc = self.visit()
+        doc.new = True
+        doc.calendar_event = "UNRELATED-EVENT"
+        with self.assertRaisesRegex(ValueError, "Calendar event links"):
+            doc.validate()
+        doc.new = False
+        doc.previous = self.visit()
+        with self.assertRaisesRegex(ValueError, "Calendar event links"):
+            doc.validate()
+
     def test_json_flag_cannot_forge_audit_transition(self):
         doc = self.visit("Completed")
         doc.previous = self.visit("Started")

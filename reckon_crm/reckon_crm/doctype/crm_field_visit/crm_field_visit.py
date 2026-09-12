@@ -18,6 +18,8 @@ class CRMFieldVisit(Document):
     def validate(self):
         reference_doc(self.reference_doctype, self.reference_name)
         previous = self.get_doc_before_save()
+        if (self.is_new() and self.get("calendar_event")) or (previous and self.get("calendar_event") != previous.get("calendar_event")):
+            frappe.throw("Calendar event links are managed by the visit.")
         for fieldname in ("attachment", "photo"):
             file_url = self.get(fieldname)
             if file_url and (not previous or file_url != previous.get(fieldname)):
@@ -63,9 +65,18 @@ class CRMFieldVisit(Document):
         if self.planned_start_time and self.planned_end_time:
             if get_time(self.planned_end_time) <= get_time(self.planned_start_time):
                 frappe.throw("Planned end time must be later than start time.")
+        if self.planned_end_time and not self.planned_start_time:
+            frappe.throw("Enter a start time when specifying an end time.")
         if self.next_followup_date and getdate(self.next_followup_date) < getdate(nowdate()):
             frappe.throw("Next follow-up cannot be in the past.")
+
+    def on_update(self):
+        from reckon_crm.services.calendar import sync_visit
+        sync_visit(self)
 
     def on_trash(self):
         if self.status != "Planned":
             frappe.throw("Only planned visits may be deleted.")
+        if self.get("calendar_event"):
+            from reckon_crm.services.calendar import sync_visit
+            sync_visit(self, status="Cancelled")

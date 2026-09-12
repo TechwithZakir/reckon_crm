@@ -3,7 +3,7 @@
     <div class="rv-heading"><h2>Visits</h2><button v-if="context.can_create" class="rv-primary" @click="scheduling = true" :disabled="scheduling">Schedule visit</button></div>
     <VisitSchedule v-if="scheduling" :doctype="doctype" :docname="docname" :context="context" @saved="scheduled" @cancel="scheduling = false" />
     <VisitDetail v-if="selected" :key="selected.name" :visit="selected" :user="context.user" @close="selected = null" @changed="changed" />
-    <div class="rv-actions"><label>Status<select v-model="status" @change="load"><option value="">All statuses</option><option>Planned</option><option>Started</option><option>Completed</option><option>Cancelled</option><option>Missed</option></select></label><button :disabled="loading" @click="load">Refresh</button></div>
+    <div class="rv-actions rv-filters"><label>Status<select v-model="status" @change="load"><option value="">All statuses</option><option>Planned</option><option>Started</option><option>Completed</option><option>Cancelled</option><option>Missed</option></select></label><button :disabled="loading" @click="load">Refresh</button></div>
     <p v-if="error" class="rv-error" role="alert">{{ error }}</p>
     <p v-if="loading" role="status">Loading visits…</p>
     <p v-else-if="!visits.length && !error">No visits found. Schedule your first visit.</p>

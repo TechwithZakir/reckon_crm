@@ -75,6 +75,16 @@ def schedule(data):
 
 
 @frappe.whitelist(methods=["POST"])
+def sync_calendar(name):
+    doc = visit_service.locked_visit(name)
+    if doc.status not in ("Planned", "Started"):
+        frappe.throw("Only active visits can be added to the calendar.")
+    from reckon_crm.services.calendar import sync_visit
+    sync_visit(doc)
+    return response(doc.as_dict())
+
+
+@frappe.whitelist(methods=["POST"])
 def check_in(name, latitude=None, longitude=None, accuracy=None):
     return response(visit_service.check_in(name, latitude, longitude, accuracy).as_dict())
 

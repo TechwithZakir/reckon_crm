@@ -1,4 +1,4 @@
-# Phase 1 — Field visits (0.2.0, unreleased)
+# Phase 1 — Field visits (0.2.1, unreleased)
 
 ## Deploy to the correct site
 
@@ -20,6 +20,42 @@ Restart production workers using your normal deployment procedure and reload
 `/crm/visits`. Migration creates **CRM Field Visit** and **CRM Customer Location**.
 Building alone does not create database tables. No ERPNext/HRMS installation is
 required. Existing CRM roles are reused: Sales User, Sales Manager, System Manager.
+
+Version 0.2.1 also adds the `calendar_event` field. Run migration even if the visit
+DocTypes already exist. Scheduling now requires native Event creation permission;
+a calendar failure rolls back the visit save. No upstream CRM files are modified.
+
+## Maps and native calendar sync
+
+The scheduling form previews entered coordinates and the selected saved customer
+location using OpenStreetMap. The map has a marker, zoom controls and a larger-map
+link; it does not change coordinates when clicked. Coordinates go to OpenStreetMap,
+so internet access is required. Sites with a custom Content Security Policy must
+allow `https://www.openstreetmap.org` in `frame-src`. Manual fields remain usable
+when map content cannot load; no API key is needed.
+
+Each newly saved visit creates one private Event owned by its creator, with the
+assignee as a participant. Date-only visits span the day; start-only visits reserve
+one hour. Times use the site's timezone. A planned visit can be rescheduled from
+its native Desk form; saving updates the same Event, including changed assignees.
+Completion marks the Event Completed; cancellation or deletion of a planned visit
+marks it Cancelled. CRM Calendar's normal Open filter hides these finished Events.
+Native Event permissions govern calendar visibility.
+Administrator is not an email participant: its own Events use ownership. For a
+visit another user assigns to Administrator, select the creator's calendar filter.
+
+Sync is one-way. Change the visit rather than editing or dragging its Event in
+Calendar; managed Event edits/deletes are rejected to prevent schedule divergence.
+Open calendar uses the installed CRM Calendar route when present, falling back
+to Desk Calendar for older CRM builds. Native Event fields were inspected in
+[Frappe 15](https://github.com/frappe/frappe/blob/version-15/frappe/desk/doctype/event/event.json),
+[Frappe 16](https://github.com/frappe/frappe/blob/version-16/frappe/desk/doctype/event/event.json), and
+[develop](https://github.com/frappe/frappe/blob/develop/frappe/desk/doctype/event/event.json).
+This source inspection does not certify a live installation.
+
+For pre-upgrade Planned/Started visits, open their details and use **Sync to calendar**,
+or save the visit. There is no automatic bulk backfill of old visits. Sync does not
+enable Google/Outlook integration; existing native CRM notification settings apply.
 
 ## User workflow
 
@@ -72,6 +108,12 @@ bench --site TEST_SITE run-tests --app reckon_crm --module reckon_crm.reckon_crm
 Then verify manually on your intended deployment:
 
 - [ ] Migration succeeds with Frappe CRM installed and ERPNext/HRMS absent.
+- [ ] Status, All statuses, and Refresh stay in one row on desktop/mobile.
+- [ ] Manual/current-location coordinates and saved location selection show the map.
+- [ ] Scheduling creates one private Event visible to creator and assigned user.
+- [ ] Reschedule/reassign in the visit Desk form updates the same Event; retries do not duplicate it.
+- [ ] Completion/cancellation update Event status; managed Event direct edits are rejected.
+- [ ] Sync to calendar works for an older active visit; denied Event creation leaves no new visit.
 - [ ] Sales User can schedule, preview, start, and complete an assigned visit.
 - [ ] A second sales user cannot read or change that visit; managers obey reference permissions.
 - [ ] Double-click/retry cannot produce duplicate completion comments.

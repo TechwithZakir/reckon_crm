@@ -23,7 +23,7 @@ class AdapterContracts(unittest.TestCase):
         self.frappe.get_hooks = Mock(return_value=[
             "reckon_crm.integrations.crm.renderer.ReckonCRMPage"
         ])
-        self.frappe.db = types.SimpleNamespace(exists=Mock(return_value=True))
+        self.frappe.db = types.SimpleNamespace(exists=Mock(return_value=True), has_column=Mock(return_value=True))
         self.frappe.get_app_path = lambda app, *parts: str(self.root.joinpath(app, *parts))
         self.frappe.throw = Mock(side_effect=RuntimeError("dependency error"))
         self.frappe.render_template = Mock(return_value="<html>CRM</html>")

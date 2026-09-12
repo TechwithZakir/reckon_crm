@@ -3,6 +3,8 @@
     <div class="rv-heading"><h2 id="visit-title">Visit · {{ visit.reference_name }}</h2><button @click="$emit('close')">Close details</button></div>
     <p>{{ visit.planned_date }} {{ visit.planned_start_time || '' }} · {{ visit.status }} · {{ visit.assigned_to }}</p>
     <p class="rv-preserve">{{ visit.visit_purpose }}</p>
+    <p v-if="visit.calendar_event">Synced to Calendar · <a :href="calendarHref">Open calendar</a></p>
+    <button v-else-if="['Planned', 'Started'].includes(visit.status)" :disabled="busy" @click="syncCalendar">Sync to calendar</button>
     <dl class="rv-grid">
       <div><dt>Check-in verification</dt><dd>{{ visit.geo_status }}</dd></div>
       <div><dt>Distance at check-in</dt><dd>{{ visit.checkin_time && visit.customer_location && visit.geo_status !== 'Location Unavailable' ? `${Math.round(visit.distance_from_customer)}m` : 'Not verified' }}</dd></div>
@@ -40,13 +42,16 @@
 
 <script setup>
 import { ref } from 'vue'
+import { calendarUrl } from '../extensions/adapters/calendarNavigation.js'
 import { api, uploadVisitFile } from '../services/api.js'
 import { currentPosition } from '../services/geo.js'
 const props = defineProps({ visit: { type: Object, required: true }, user: String })
 const emit = defineEmits(['changed', 'close'])
+const calendarHref = calendarUrl()
 const busy = ref(false), error = ref(''), preview = ref(null), outcome = ref(''), notes = ref(''), followup = ref('')
 async function run(action) { busy.value = true; error.value = ''; try { await action() } catch (e) { error.value = e.message } finally { busy.value = false } }
 async function previewLocation() { await run(async () => { preview.value = await api('geo.preview', { name: props.visit.name, ...await currentPosition() }) }) }
+async function syncCalendar() { await run(async () => emit('changed', await api('visits.sync_calendar', { name: props.visit.name }))) }
 async function start(withoutLocation) { await run(async () => emit('changed', await api('visits.check_in', { name: props.visit.name, ...(withoutLocation ? {} : await currentPosition()) }))) }
 async function finish(withoutLocation) { await run(async () => emit('changed', await api('visits.check_out', { name: props.visit.name, outcome: outcome.value, notes: notes.value,
   next_followup_date: followup.value, ...(withoutLocation ? {} : await currentPosition()) }))) }

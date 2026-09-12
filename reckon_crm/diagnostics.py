@@ -21,10 +21,11 @@ def status():
     result = ReckonCRMPage("crm").asset_status()
     assets_ready = result["ready"]
     result["schema_ready"] = all(frappe.db.exists("DocType", name) for name in ("CRM Field Visit", "CRM Customer Location"))
+    result["schema_ready"] = result["schema_ready"] and frappe.db.has_column("CRM Field Visit", "calendar_event")
     if not result["schema_ready"]:
         result["migrate_command"] = "bench --site YOUR_SITE migrate"
         if result["ready"]:
-            result.update(ready=False, reason="Field visit DocTypes are missing. Migrate this site before using Phase 1.")
+            result.update(ready=False, reason="Field visit DocTypes or calendar fields are missing. Migrate this site before using visits.")
     result["url"] = "/crm/visits"
     result["scope"] = "Phase 1: schedule visits, customer locations, check-in/check-out, and visit history. Run site migration before using the new APIs."
     if frappe.conf.get("reckon_crm_disabled"):

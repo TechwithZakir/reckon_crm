@@ -5,6 +5,62 @@ is not a published release. Preserve previous entries when adding new versions.
 
 ## Unreleased
 
+### Visit scheduling improvements (0.2.1)
+
+#### Added
+
+- OpenStreetMap previews in the new customer location form and for the saved
+  location selected when scheduling a visit. Maps update with valid coordinates,
+  include a marker, zoom controls, and a larger-map link; invalid/empty coordinates
+  show guidance. This is a preview, not a map-based coordinate picker.
+- Automatic one-way sync from saved visits to private native Frappe Events.
+  The scheduling user owns the Event and the assignee is a participant. Schedule,
+  purpose, assignee, completion, and cancellation changes reuse the linked Event.
+- Date-only visits become all-day Events; timed visits without an end reserve
+  one hour. Deleting a planned visit cancels its Event.
+- A Sync to calendar action for older active visits without an Event, plus an
+  Open calendar link using CRM Calendar when available and Desk Calendar otherwise.
+- Unit coverage for calendar date ranges, reuse, permissions, protected links,
+  incompatible schemas, failed creation, and map coordinate bounds. Expanded the
+  disposable-site integration tests for Event creation, rescheduling and cancellation.
+
+#### Changed
+
+- Package version is 0.2.1. Added a protected Calendar Event link and migration
+  diagnostics for that column. Event sync and visit saves use the same transaction.
+- Calendar Events derived from visits must be edited through their visit; direct
+  Event edits/deletes are rejected. Ordinary native Events remain editable.
+- Updated the deployment guide with map hosting requirements, calendar behavior,
+  prerequisites, and live acceptance checks.
+
+#### Fixed
+
+- Aligned Status, All statuses, and Refresh on one horizontal row.
+- Reject an end time without a start time, avoiding ambiguous calendar ranges.
+- Avoid putting the special Administrator user ID into native Email fields.
+
+#### Validation and deployment
+
+- 32 local Python tests and 10 frontend tests passed. Production build against
+  inspected CRM develop passed. Browser inspection confirmed filter alignment
+  and a loaded map marker using synthetic coordinates, without live CRM writes.
+- Frappe Event schemas inspected on version-15, version-16 and develop; runtime
+  checks reject missing required fields. Live version compatibility, migration,
+  assignment visibility and calendar transactions remain unverified.
+- After deploying the code, migrate the correct Bench site, rebuild Reckon CRM,
+  clear cache, and restart workers. Frappe CRM must already be installed. Users
+  scheduling visits need native Event creation permission; missing permission or
+  Event failures roll back the visit save rather than silently skipping sync.
+- Map previews require internet access to OpenStreetMap and send coordinates
+  to that provider; no API key or new dependency is needed. A restrictive CSP must
+  permit frames from https://www.openstreetmap.org. There is no offline map.
+- Existing visits are not bulk-modified: active visits sync on their next save
+  or through Sync to calendar. Google/Outlook sync is not enabled. Native CRM
+  notification settings continue to apply; this change adds no notification jobs.
+- Administrator's own Events use ownership, not an email participant. When another
+  user assigns a visit to Administrator, use the creator's calendar filter to see
+  that Event; ordinary email-based assignees appear in their own calendar.
+
 ### Phase 1 — Field Visit engine (0.2.0)
 
 #### Added
