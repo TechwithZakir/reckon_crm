@@ -59,6 +59,11 @@ needed. A custom Content Security Policy must allow that host in `img-src`.
 Coordinates remain usable if map tiles fail. There is no offline map, background
 tracking, or anti-spoofing claim.
 
+Leaflet is resolved from Frappe CRM's own frontend dependencies. If a build reports
+that it is missing, run `cd apps/crm && yarn install`, return to the Bench directory,
+then run `bench build --app reckon_crm` again. Do not install a separate Leaflet
+copy under Reckon CRM.
+
 Each newly saved visit creates one private Event owned by its creator, with the
 assignee as a participant. Date-only visits span the day; start-only visits reserve
 one hour. Times use the site's timezone. A planned visit can be rescheduled from

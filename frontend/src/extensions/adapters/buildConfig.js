@@ -20,6 +20,15 @@ export async function createBuildConfig({ crmFrontend, appRoot, outDir, base }) 
   if (icons.length !== 1) throw new Error('Unsupported Frappe UI icon plugin layout')
   // Tailwind's loader handles its extensionless CommonJS/ESM plugin imports.
   const requireCRM = createRequire(path.join(crmFrontend, 'package.json'))
+  let leaflet, leafletCss
+  try {
+    // Leaflet is a declared CRM frontend dependency. Alias it explicitly because
+    // Reckon source is outside CRM's node_modules resolution ancestry.
+    leaflet = requireCRM.resolve('leaflet')
+    leafletCss = requireCRM.resolve('leaflet/dist/leaflet.css')
+  } catch {
+    throw new Error('CRM frontend dependency leaflet is missing. Run yarn install in apps/crm, then rebuild Reckon CRM.')
+  }
   const loadTailwindConfig = requireCRM('tailwindcss/loadConfig')
   const tailwindConfig = loadTailwindConfig(path.join(crmFrontend, 'tailwind.config.js'))
   const content = tailwindConfig.content.map((glob) => path.resolve(crmFrontend, glob).replaceAll('\\', '/'))
@@ -54,11 +63,13 @@ export async function createBuildConfig({ crmFrontend, appRoot, outDir, base }) 
       }),
     ],
     resolve: {
-      alias: {
-        '@': path.join(crmFrontend, 'src'),
-        '@reckon': path.join(appRoot, 'frontend/src'),
-        '@framework/ui': path.resolve(crmFrontend, '../../frappe/ui/src'),
-      },
+      alias: [
+        { find: /^leaflet\/dist\/leaflet\.css$/, replacement: leafletCss },
+        { find: /^leaflet$/, replacement: leaflet },
+        { find: '@', replacement: path.join(crmFrontend, 'src') },
+        { find: '@reckon', replacement: path.join(appRoot, 'frontend/src') },
+        { find: '@framework/ui', replacement: path.resolve(crmFrontend, '../../frappe/ui/src') },
+      ],
       dedupe: ['vue', 'vue-router', 'frappe-ui', 'dompurify', '@tiptap/core', '@tiptap/pm',
         '@tiptap/vue-3', 'prosemirror-model', 'prosemirror-state', 'prosemirror-view', 'prosemirror-transform'],
     },

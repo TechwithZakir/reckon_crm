@@ -43,6 +43,9 @@ is not a published release. Preserve previous entries when adding new versions.
 - Replaced the static map iframe with the requested interactive map experience.
 - Removed the duplicate location-fetch action; Fetch geolocation is now part of
   the interactive map, where its resulting marker is immediately visible.
+- Fixed Bench production builds by resolving Leaflet from the installed CRM
+  frontend, which already declares it, rather than requiring a separate Reckon
+  app `node_modules` installation.
 - Location failure messages now explain denied permission, timeout, and device
   service failure. The browser owns the permission prompt; the user can retry
   Fetch geolocation after granting access.
@@ -61,6 +64,8 @@ is not a published release. Preserve previous entries when adding new versions.
   are required. There is no offline map or continuous tracking.
 - HRMS is not imported by common modules. Enabling its setting requires HRMS and
   a migrated Employee Checkin schema; it does not create attendance records itself.
+- If the CRM frontend's Leaflet package is absent, `bench build` now stops with
+  the direct remediation: run `yarn install` in `apps/crm`, then rebuild.
 - Integration-managed Event and CRM Task records cannot be edited or deleted
   directly; update the visit. Disabling an integration pauses future updates and
   preserves existing linked records.
