@@ -5,6 +5,45 @@ is not a published release. Preserve previous entries when adding new versions.
 
 ## Unreleased
 
+### CRM-native visit interface
+
+#### Changed
+
+- Replaced the custom Visit workspace controls with the Frappe UI components
+  used by Frappe CRM: `Button`, `FormControl`, `ListView`, `Checkbox`, and
+  `MultiSelect`.
+- Visit schedules now use Frappe CRM form controls for record selection, date
+  and time, visit type, customer location, purpose, and calendar-related
+  actions. The visit list now uses the native CRM list layout.
+- Replaced the custom assigned-user checkbox/search panel with Frappe UI’s
+  searchable multi-select. It retains the server-filtered eligible-user list
+  and the independent-visit-per-user behavior.
+- Replaced the custom settings checkboxes and visit detail action buttons with
+  native Frappe UI controls, preserving the separately configurable Calendar,
+  Task, and HRMS sync behavior.
+
+#### Validation and limitations
+
+- The 10 frontend component and adapter tests and the production build against
+  the inspected CRM develop frontend passed locally. Live Frappe 15, 16, and
+  latest verification remains pending.
+
+### Visit Settings access
+
+#### Changed
+
+- Moved Visit Settings from the Visits workspace to the standalone
+  `/crm/visit-settings` page. Field Visits shows its link only for Administrator.
+- Restricted settings API and Desk DocType access to the `Administrator` account.
+  Direct navigation by any other user receives a permission error.
+- Retained independent checkbox switches for Calendar, CRM Tasks, HRMS Employee
+  Checkin, and auto-attendance. Each can be enabled or disabled separately.
+
+#### Validation
+
+- Added an Administrator-only settings permission test. Frontend compilation and
+  the production build are pending rerun for this page move.
+
 ### Field visit integrations and interactive maps (0.3.0)
 
 #### Added

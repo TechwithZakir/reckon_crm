@@ -22,7 +22,7 @@ def context():
     logged_in()
     from reckon_crm.services.settings import get_settings
     return response({"user": frappe.session.user, "can_assign": is_manager(),
-                     "can_manage_settings": frappe.session.user == "Administrator" or "System Manager" in frappe.get_roles(),
+                     "can_manage_settings": frappe.session.user == "Administrator",
                      "settings": get_settings(),
                      "can_create": bool(frappe.has_permission("CRM Field Visit", "create"))})
 

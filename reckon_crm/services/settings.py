@@ -4,6 +4,10 @@ import frappe
 DEFAULTS = {"sync_calendar": 1, "sync_tasks": 0, "sync_employee_checkin": 0, "skip_auto_attendance": 1}
 
 
+def administrator_permission(doc=None, ptype=None, user=None):
+    return (user or frappe.session.user) == "Administrator"
+
+
 def get_settings():
     if not frappe.db.exists("DocType", "Reckon CRM Settings"):
         return dict(DEFAULTS)

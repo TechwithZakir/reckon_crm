@@ -27,6 +27,7 @@ doc_events = {
 }
 
 has_permission = {
+    "Reckon CRM Settings": "reckon_crm.services.settings.administrator_permission",
     "CRM Field Visit": "reckon_crm.utils.permissions.document_permission",
     "CRM Customer Location": "reckon_crm.utils.permissions.document_permission",
 }

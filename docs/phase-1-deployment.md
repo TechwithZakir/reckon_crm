@@ -27,7 +27,9 @@ visit DocTypes already exist. No upstream CRM files are modified.
 
 ## Settings, multi-user visits, and optional integrations
 
-System Managers open **Visit settings** in the Visits workspace. The switches are:
+Only the **Administrator** account can open `/crm/visit-settings`. The Field Visits
+header shows the Visit settings link only to Administrator. Direct URL access, the
+settings API, and the Desk DocType are denied to other users. The switches are:
 
 | Switch | Default | Behavior |
 | --- | --- | --- |

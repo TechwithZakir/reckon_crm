@@ -1,10 +1,10 @@
 <template>
   <section class="rv-card" aria-labelledby="visit-title">
-    <div class="rv-heading"><h2 id="visit-title">Visit · {{ visit.reference_name }}</h2><button @click="$emit('close')">Close details</button></div>
+    <div class="rv-heading"><h2 id="visit-title">Visit · {{ visit.reference_name }}</h2><Button label="Close details" @click="$emit('close')" /></div>
     <p>{{ visit.planned_date }} {{ visit.planned_start_time || '' }} · {{ visit.status }} · {{ visit.assigned_to }}</p>
     <p class="rv-preserve">{{ visit.visit_purpose }}</p>
     <p v-if="visit.calendar_event">Synced to Calendar · <a :href="calendarHref">Open calendar</a></p>
-    <button v-else-if="settings.sync_calendar && ['Planned', 'Started'].includes(visit.status)" :disabled="busy" @click="syncCalendar">Sync to calendar</button>
+    <Button v-else-if="settings.sync_calendar && ['Planned', 'Started'].includes(visit.status)" label="Sync to calendar" :loading="busy" @click="syncCalendar" />
     <p v-if="visit.crm_task">Assigned CRM Task: {{ visit.crm_task }}</p>
     <p v-if="visit.employee_checkin">Employee IN log: {{ visit.employee_checkin }}</p>
     <p v-if="visit.employee_checkout">Employee OUT log: {{ visit.employee_checkout }}</p>
@@ -26,22 +26,22 @@
       <p v-if="preview">Current check: {{ preview.geo_status }} · {{ preview.distance_from_customer == null ? 'Distance unavailable' : `${Math.round(preview.distance_from_customer)}m away` }} · allowed {{ preview.allowed_radius || 'not set' }}m</p>
       <p>Location is requested only when you use a location action. Outside-radius and unavailable samples are saved as unverified; browser GPS cannot prove presence.</p>
       <div v-if="visit.status === 'Planned'" class="rv-actions">
-        <button :disabled="busy" @click="previewLocation">Check distance</button>
-        <button class="rv-primary" :disabled="busy" @click="start(false)">Check in with location</button>
-        <button :disabled="busy" @click="start(true)">Check in without location</button>
+        <Button label="Check distance" :loading="busy" @click="previewLocation" />
+        <Button theme="gray" variant="solid" label="Check in with location" :loading="busy" @click="start(false)" />
+        <Button label="Check in without location" :disabled="busy" @click="start(true)" />
       </div>
       <form v-else @submit.prevent="finish(false)">
-        <label>Outcome<input v-model="outcome" maxlength="140" required /></label>
-        <label>Notes<textarea v-model="notes" rows="4" maxlength="10000" /></label>
-        <label>Next follow-up<input v-model="followup" type="date" /></label>
-        <div class="rv-actions"><button class="rv-primary" :disabled="busy" type="submit">Complete with location</button>
-          <button :disabled="busy || !outcome.trim()" type="button" @click="finish(true)">Complete without location</button></div>
+        <FormControl v-model="outcome" label="Outcome" maxlength="140" required />
+        <FormControl v-model="notes" type="textarea" label="Notes" :rows="4" maxlength="10000" />
+        <FormControl v-model="followup" type="date" label="Next follow-up" />
+        <div class="rv-actions"><Button theme="gray" variant="solid" :loading="busy" type="submit" label="Complete with location" />
+          <Button label="Complete without location" :disabled="busy || !outcome.trim()" @click="finish(true)" /></div>
       </form>
     </div>
     <div v-if="['Planned', 'Started'].includes(visit.status)" class="rv-actions">
       <label>Attach file<input type="file" :disabled="busy" @change="upload($event, 'attachment')" /></label>
       <label>Add photo<input type="file" accept="image/*" :disabled="busy" @change="upload($event, 'photo')" /></label>
-      <button v-if="visit.status === 'Planned'" :disabled="busy" @click="cancelVisit">Cancel visit</button>
+      <Button v-if="visit.status === 'Planned'" label="Cancel visit" :disabled="busy" @click="cancelVisit" />
     </div>
     <div class="rv-actions"><a v-if="visit.attachment" :href="visit.attachment" target="_blank" rel="noopener">View attachment</a><a v-if="visit.photo" :href="visit.photo" target="_blank" rel="noopener">View photo</a></div>
     <p v-if="busy" role="status">Processing…</p><p v-if="error" role="alert" class="rv-error">{{ error }}</p>
@@ -50,6 +50,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { Button, FormControl } from 'frappe-ui'
 import LocationMap from './LocationMap.vue'
 import { calendarUrl } from '../extensions/adapters/calendarNavigation.js'
 import { api, uploadVisitFile } from '../services/api.js'

@@ -83,6 +83,10 @@ class SyncTests(unittest.TestCase):
         doc.sync_employee_checkin = 0; doc.sync_tasks = "anything"
         with self.assertRaisesRegex(ValueError,"enabled or disabled"): self.settings.validate_settings(doc)
 
+    def test_only_administrator_has_settings_document_permission(self):
+        self.assertFalse(self.settings.administrator_permission(user="manager@example.invalid"))
+        self.assertTrue(self.settings.administrator_permission(user="Administrator"))
+
     def test_unavailable_location_not_written_as_fake_zero(self):
         self.frappe.get_installed_apps.return_value.append("hrms")
         self.visit.geo_status = "Location Unavailable"
