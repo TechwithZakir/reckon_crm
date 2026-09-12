@@ -25,6 +25,25 @@ the build. Framework source used for shared UI was the current develop snapshot.
 
 ## Live Bench acceptance — pending
 
+### Evidence received from the deployed site
+
+- [x] User-provided screenshot at `erpdev.reckon.tech` shows the desktop
+  FIELD SALES section and Field Visits sidebar entry.
+- [x] The same screenshot shows a CRM Lead's selected Visits tab and the
+  expected empty state at a URL ending in `#visits`.
+- [x] An unauthenticated request to `/crm/visits` displayed “Not Permitted”
+  and a login link during browser inspection.
+
+These observations verify only the listed behavior. They do not establish Deal,
+mobile, PWA, restricted-user, disable/uninstall, or cross-version acceptance.
+An authenticated browser session was subsequently used to verify `/crm/visits`
+and its empty state after refreshing. The Deals list loaded but contained no
+deals, so a Deal detail tab could not be verified without creating test data.
+The browser hostname differs from the Bench site name reported by the user;
+do not assume that they map to the same site without checking deployment configuration.
+
+### Remaining acceptance checklist
+
 - [ ] `bench --site SITE install-app reckon_crm` succeeds with CRM only.
 - [ ] `bench build --app reckon_crm` succeeds and writes only Reckon assets.
 - [ ] A guest and a logged-in user without CRM access cannot enter CRM.
@@ -41,4 +60,6 @@ the build. Framework source used for shared UI was the current develop snapshot.
 - [ ] Uninstall on a disposable site and verify the original CRM still works.
 - [ ] Confirm `git status --short` inside the installed CRM has no source edits.
 
-Do not mark Phase 0 complete or begin Phase 1 until these live checks pass.
+Do not mark Phase 0 complete until these live checks pass. The user subsequently
+explicitly requested continuing to the next phases; Phase 1 development proceeds
+under that instruction while the unverified checks remain recorded here.

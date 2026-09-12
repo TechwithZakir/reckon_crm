@@ -23,6 +23,7 @@ class AdapterContracts(unittest.TestCase):
         self.frappe.get_hooks = Mock(return_value=[
             "reckon_crm.integrations.crm.renderer.ReckonCRMPage"
         ])
+        self.frappe.db = types.SimpleNamespace(exists=Mock(return_value=True))
         self.frappe.get_app_path = lambda app, *parts: str(self.root.joinpath(app, *parts))
         self.frappe.throw = Mock(side_effect=RuntimeError("dependency error"))
         self.frappe.render_template = Mock(return_value="<html>CRM</html>")
@@ -32,14 +33,9 @@ class AdapterContracts(unittest.TestCase):
         self.modules = patch.dict(sys.modules, {"frappe": self.frappe, "crm.www.crm": crm_page})
         self.modules.start()
         self.addCleanup(self.modules.stop)
-        from reckon_crm import install
-        from reckon_crm.integrations.crm import renderer
-
-        self.install = importlib.reload(install)
-        self.renderer = importlib.reload(renderer)
-        from reckon_crm import diagnostics
-
-        self.diagnostics = importlib.reload(diagnostics)
+        self.install = importlib.reload(importlib.import_module("reckon_crm.install"))
+        self.renderer = importlib.reload(importlib.import_module("reckon_crm.integrations.crm.renderer"))
+        self.diagnostics = importlib.reload(importlib.import_module("reckon_crm.diagnostics"))
 
     def write_template(self):
         target = self.root / "reckon_crm" / "templates" / "reckon_crm.html"
@@ -56,7 +52,8 @@ class AdapterContracts(unittest.TestCase):
             filename = f"source{index}.js"
             (source / filename).write_bytes(b"source")
             files[filename] = hashlib.sha256(b"source").hexdigest()
-        target.with_suffix(".json").write_text(json.dumps({"schema": 1, "buildId": "abc123", "files": files}))
+        from reckon_crm import __version__
+        target.with_suffix(".json").write_text(json.dumps({"schema": 1, "buildId": "abc123", "files": files, "extensionVersion": __version__}))
 
     def test_requires_crm_but_not_optional_apps(self):
         for version in ["15.0.0", "16.0.0", "17.0.0-dev"]:
@@ -105,6 +102,30 @@ class AdapterContracts(unittest.TestCase):
         self.context.side_effect = PermissionError("CRM access denied")
         with self.assertRaises(PermissionError):
             self.renderer.ReckonCRMPage("crm").render()
+
+    def test_invalid_metadata_and_old_extension_version_fall_back(self):
+        self.write_template()
+        page = self.renderer.ReckonCRMPage("crm")
+        metadata = page.template_path.with_suffix(".json")
+        data = json.loads(metadata.read_text())
+        data["extensionVersion"] = "0.1.0"
+        metadata.write_text(json.dumps(data))
+        self.assertIn("version differs", page.asset_status()["reason"])
+        for value in [[], None, "invalid"]:
+            metadata.write_text(json.dumps(value))
+            self.assertFalse(page.can_render())
+
+    def test_missing_schema_reports_migration_and_build_independently(self):
+        self.frappe.get_installed_apps.return_value = ["frappe", "crm", "reckon_crm"]
+        self.frappe.db.exists.return_value = False
+        state = self.diagnostics.status()
+        self.assertIn("migrate_command", state)
+        self.assertIn("build_command", state)
+        self.write_template()
+        state = self.diagnostics.status()
+        self.assertFalse(state["ready"])
+        self.assertIn("migrate_command", state)
+        self.assertNotIn("build_command", state)
 
     def test_diagnostics_explain_missing_site_prerequisites_and_hooks(self):
         self.frappe.get_installed_apps.return_value = ["frappe"]

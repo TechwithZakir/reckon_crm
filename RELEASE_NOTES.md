@@ -5,6 +5,71 @@ is not a published release. Preserve previous entries when adding new versions.
 
 ## Unreleased
 
+### Phase 1 — Field Visit engine (0.2.0)
+
+#### Added
+
+- CRM Field Visit and CRM Customer Location DocTypes using native CRM Lead,
+  CRM Deal, and CRM Organization references, with CRM sales-role permissions.
+- Scheduling, manager assignment, visit list/history, detail controls, customer
+  location creation, and status filtering in `/crm/visits` and Lead/Deal tabs.
+- Server-owned check-in/check-out timestamps, actors, duration, coordinate and
+  accuracy capture, customer-coordinate/radius snapshots, and Haversine distance.
+- Server geo preview and explicit unverified check-in/out when GPS is unavailable.
+  Outside-radius and accuracy-over-100m samples are flagged rather than blocked.
+- Completion outcome, notes, follow-up date, private photo/file upload, and a
+  native CRM timeline completion comment in the same transaction. The native
+  Desk form includes an optional Signature field; SPA signature capture is deferred.
+- Assigned-user and native CRM reference permission enforcement for APIs and Desk
+  lists, immutable closed visits, and parameter-safe list permission conditions.
+- Unit tests for geofences, lifecycle, actor/reference permissions, direct audit
+  mutation, and list restrictions, plus a disposable-site integration test.
+- Migration readiness diagnostics and the Phase 1 deployment/acceptance guide.
+
+#### Changed
+
+- Replaced Phase 0 empty placeholders with the visit workspace and forms.
+- Advanced Python/frontend package versions to 0.2.0; unreleased work is not a
+  published package or deployed-site certification.
+- Recorded the user's explicit instruction to proceed with Phase 1 while retaining
+  unverified Phase 0 site checks. ERPNext and HRMS remain optional and unused.
+- Build metadata now records the extension version so deploying new server code
+  cannot silently activate an old Reckon frontend bundle.
+
+#### Fixed
+
+- Direct JSON flags cannot authorize protected lifecycle changes: transitions use
+  a server-only identity token, with row locks and state checks on mutation.
+- Corrected mocked-module isolation so the expanded Python suite runs together.
+- Reject public, external, and unrelated attachment links on direct DocType saves.
+- Handle malformed metadata safely and report missing migrations and builds independently.
+- Scope visit definition styles and box sizing to prevent layout overflow or changes to native CRM panels.
+
+#### Validation and limitations
+
+- 27 local Python tests and 9 frontend validation/compilation tests passed on
+  2026-09-12. A full production build against inspected CRM develop passed.
+- Both adapter compilation checks against the inspected CRM main/develop refs passed;
+  this is not live certification of every Frappe 15/16/latest combination.
+- Local browser smoke test with simulated records passed scheduling, check-in
+  without GPS, completion, and the completed read-only presentation. This does
+  not validate the deployed API or database.
+- Live database tests, migrations, concurrent requests, mobile geolocation, file
+  permissions, and native timeline behavior on the deployed site remain pending.
+- Lists currently show the latest 100 accessible visits. Reference ID search
+  returns 30 choices; large-site permission queries require load testing.
+- No automatic missed visits, follow-up tasks, notifications, My Day/maps,
+  HRMS/ERPNext integration, quotations, or AI are included in this phase.
+
+### Live acceptance evidence
+
+#### Changed
+
+- Recorded the deployed screenshot confirming the desktop Field Sales sidebar
+  and CRM Lead Visits empty state, plus the observed guest access denial.
+- Kept the other live checks pending; the user authorized Phase 1 development.
+  The screenshot does not certify Deal, mobile, PWA, or uninstall behavior.
+
 ### Installation troubleshooting — 2026-09-11
 
 #### Added

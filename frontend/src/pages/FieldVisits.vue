@@ -2,12 +2,12 @@
   <LayoutHeader>
     <template #left-header><h1 class="reckon-title">Field Visits</h1></template>
   </LayoutHeader>
-  <main class="reckon-visits"><VisitsEmptyState /></main>
+  <main class="reckon-visits"><VisitWorkspace /></main>
 </template>
 
 <script setup>
 import LayoutHeader from '@/components/LayoutHeader.vue'
-import VisitsEmptyState from '../components/VisitsEmptyState.vue'
+import VisitWorkspace from '../components/VisitWorkspace.vue'
 </script>
 
 <style scoped>

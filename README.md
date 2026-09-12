@@ -4,10 +4,11 @@ Reckon CRM extends the existing Frappe CRM experience at `/crm`.
 It uses native CRM Lead, CRM Deal, CRM Organization, Contact, activities,
 communications, and tasks. ERPNext and HRMS are optional future integrations.
 
-**Current milestone: Phase 0 extension proof of concept.** The app scaffold,
-internal extension registry, adapter, Field Visits page, and Visits placeholders
-are implemented. Live Bench acceptance is still required before Phase 1.
-There are no visit records, scheduling, GPS capture, quotations, or AI features yet.
+**Current milestone: Phase 1 Field Visit engine (0.2.0, unreleased).** Visit
+scheduling, customer locations, action-time GPS, check-in/check-out, and history
+are implemented locally. Deployment and database acceptance remain pending.
+The user authorized Phase 1 development while remaining Phase 0 checks stay open.
+Quotations, maps/My Day, optional integrations, and AI belong to later phases.
 
 See [release notes](RELEASE_NOTES.md) for implemented features, changes, fixes,
 validation results, and known limitations. Update them with every change set.
@@ -17,10 +18,18 @@ validation results, and known limitations. Update them with every change set.
 - `/crm/visits` inside CRM's existing router and application layout.
 - `FIELD SALES → Field Visits` in the existing sidebar, including its mobile drawer.
 - A `Visits` tab on Lead and Deal pages, on desktop and mobile.
-- The placeholder: “No visits found. Schedule your first visit.”
+- Schedule visits against CRM Lead, CRM Deal, or CRM Organization, with an
+  assigned CRM user, date/time, purpose, and optional customer location.
+- Server-calculated geofence previews and check-in/check-out, including explicit
+  unverified operation when GPS is unavailable. No background tracking.
+- Immutable completed visits with outcome, notes, follow-up date, duration,
+  private attachments/photos, and a native CRM timeline completion comment.
 - Internal `registerCRMTab`, `registerCRMRoute`, `registerCRMSidebarItem`, and
   `registerCRMAction` APIs. These are Reckon APIs, not upstream extension APIs.
-  Action registration is available; action rendering belongs to Phase 1.
+  The Schedule visit action is rendered in the Visits tab and Field Visits page.
+
+**Existing installations:** follow the [Phase 1 deployment guide](docs/phase-1-deployment.md).
+Run `bench --site YOUR_SITE migrate` before using the new APIs, then rebuild assets.
 
 ## Compatibility
 
@@ -87,8 +96,8 @@ A narrow Frappe `page_renderer` hook handles the already-resolved `crm` endpoint
 It calls **CRM's own `get_context()`** for access checks, redirects, CSRF boot,
 translations, and session data. Authenticated HTML is returned with `no-store`.
 The renderer checks the six source fingerprints and asset presence before
-activating Reckon; rebuild after CRM upgrades. No new data APIs or permission
-bypasses are introduced in Phase 0.
+activating Reckon; rebuild after CRM upgrades. Phase 1 APIs enforce the normal
+DocType and linked CRM record permissions; audit transitions remain server-owned.
 
 The mobile layout, native navigation, and PWA build are retained. Reckon's
 manifest opens `/crm`; its worker caches only static assets under its asset
@@ -109,7 +118,7 @@ bench --site YOUR_SITE execute reckon_crm.diagnostics.status
 
 After updating a running production deployment, restart its Bench processes using
 your normal deployment procedure and hard-refresh `/crm/visits`. Reckon adds
-features inside `/crm`; Phase 0 does not create a separate Desk workspace. The
+features inside `/crm`; it does not create a separate Desk workspace. The
 diagnostic explains missing builds, disabled configuration, stale source, and
 missing renderer hooks. A `ready` result checks activation prerequisites, not
 the full browser acceptance checklist. On an older checkout without the diagnostic,

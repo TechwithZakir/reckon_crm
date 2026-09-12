@@ -6,6 +6,7 @@ import json
 
 import frappe
 from werkzeug.wrappers import Response
+from reckon_crm import __version__
 
 
 class ReckonCRMPage:
@@ -36,6 +37,10 @@ class ReckonCRMPage:
             return result(False, "Reckon frontend has not been built: the generated HTML template is missing.")
         try:
             metadata = json.loads(self.template_path.with_suffix(".json").read_text(encoding="utf-8"))
+            if not isinstance(metadata, dict):
+                return result(False, "The frontend compatibility metadata is invalid; rebuild Reckon CRM.")
+            if metadata.get("extensionVersion") != __version__:
+                return result(False, "Reckon CRM frontend version differs from the installed app; rebuild Reckon CRM.")
             build_id = metadata["buildId"]
             if not isinstance(build_id, str) or not build_id or not all(c in "0123456789abcdef-" for c in build_id):
                 return result(False, "The frontend build ID is invalid; rebuild Reckon CRM.")

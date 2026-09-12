@@ -1,7 +1,9 @@
 # Reckon CRM
 
-Reckon CRM extends Frappe CRM. Implement one phase at a time; do not start
-Phase 1 until Phase 0 passes its live Bench acceptance checks.
+Reckon CRM extends Frappe CRM. Implement one phase at a time. The user explicitly
+requested proceeding to the next phases after the deployed desktop integration
+was confirmed. Phase 1 development is authorized; keep remaining Phase 0 live
+checks pending and do not describe them as passed.
 
 - Never modify upstream CRM source or fork it.
 - Use CRM Lead, CRM Deal, CRM Organization, and Contact as the foundation.

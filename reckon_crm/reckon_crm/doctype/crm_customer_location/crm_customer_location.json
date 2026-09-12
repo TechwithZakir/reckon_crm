@@ -1,0 +1,119 @@
+{
+  "doctype": "DocType",
+  "name": "CRM Customer Location",
+  "module": "Reckon CRM",
+  "autoname": "hash",
+  "engine": "InnoDB",
+  "track_changes": 1,
+  "field_order": [
+    "location_name",
+    "reference_doctype",
+    "reference_name",
+    "address",
+    "latitude",
+    "longitude",
+    "geofence_radius",
+    "is_primary",
+    "location_type"
+  ],
+  "fields": [
+    {
+      "fieldname": "location_name",
+      "fieldtype": "Data",
+      "label": "Location Name",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "reference_doctype",
+      "fieldtype": "Select",
+      "label": "CRM Record Type",
+      "options": "CRM Lead\nCRM Deal\nCRM Organization",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "reference_name",
+      "fieldtype": "Dynamic Link",
+      "label": "CRM Record",
+      "options": "reference_doctype",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "address",
+      "fieldtype": "Small Text",
+      "label": "Address"
+    },
+    {
+      "fieldname": "latitude",
+      "fieldtype": "Float",
+      "label": "Latitude",
+      "reqd": 1,
+      "precision": "8"
+    },
+    {
+      "fieldname": "longitude",
+      "fieldtype": "Float",
+      "label": "Longitude",
+      "reqd": 1,
+      "precision": "8"
+    },
+    {
+      "fieldname": "geofence_radius",
+      "fieldtype": "Float",
+      "label": "Allowed Radius (metres)",
+      "reqd": 1,
+      "default": "100"
+    },
+    {
+      "fieldname": "is_primary",
+      "fieldtype": "Check",
+      "label": "Primary Location"
+    },
+    {
+      "fieldname": "location_type",
+      "fieldtype": "Select",
+      "label": "Location Type",
+      "options": "Office\nShop\nWarehouse\nOther",
+      "default": "Office"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "report": 1,
+      "export": 1,
+      "print": 1
+    },
+    {
+      "role": "Sales Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "report": 1,
+      "export": 1,
+      "print": 1
+    },
+    {
+      "role": "Sales User",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 0,
+      "report": 1,
+      "export": 1,
+      "print": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "title_field": "location_name",
+  "search_fields": "reference_name",
+  "allow_rename": 0
+}

@@ -23,12 +23,13 @@ try {
   }
   const templateDir = path.join(appRoot, 'reckon_crm/templates')
   fs.mkdirSync(templateDir, { recursive: true })
-  const metadata = { schema: report.schema, files: report.files, buildId }
+  const extensionVersion = JSON.parse(fs.readFileSync(path.join(appRoot, 'package.json'), 'utf8')).version
+  const metadata = { schema: report.schema, files: report.files, buildId, extensionVersion }
   fs.writeFileSync(path.join(templateDir, 'reckon_crm.json.tmp'), JSON.stringify(metadata, null, 2))
   fs.writeFileSync(path.join(templateDir, 'reckon_crm.html.tmp'), html)
   fs.renameSync(path.join(templateDir, 'reckon_crm.json.tmp'), path.join(templateDir, 'reckon_crm.json'))
   fs.renameSync(path.join(templateDir, 'reckon_crm.html.tmp'), path.join(templateDir, 'reckon_crm.html'))
-  console.log('Reckon CRM build complete. Run the live Bench acceptance checklist before Phase 1.')
+  console.log('Reckon CRM build complete. Migrate your site and run the live field-visit acceptance checklist.')
 } catch (error) {
   console.error(`Reckon CRM build failed: ${error.message}`)
   console.error('Install CRM frontend dependencies and set RECKON_CRM_SOURCE if apps/crm is not adjacent.')

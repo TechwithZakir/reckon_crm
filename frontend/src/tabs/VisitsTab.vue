@@ -1,6 +1,6 @@
-<template><VisitsEmptyState /></template>
+<template><VisitWorkspace :doctype="doctype" :docname="docname" /></template>
 
 <script setup>
-import VisitsEmptyState from '../components/VisitsEmptyState.vue'
+import VisitWorkspace from '../components/VisitWorkspace.vue'
 defineProps({ doctype: { type: String, required: true }, docname: { type: String, required: true } })
 </script>

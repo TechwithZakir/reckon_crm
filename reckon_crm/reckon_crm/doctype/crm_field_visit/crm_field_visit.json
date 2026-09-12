@@ -1,0 +1,311 @@
+{
+  "doctype": "DocType",
+  "name": "CRM Field Visit",
+  "module": "Reckon CRM",
+  "autoname": "hash",
+  "engine": "InnoDB",
+  "track_changes": 1,
+  "field_order": [
+    "reference_doctype",
+    "reference_name",
+    "visit_type",
+    "visit_purpose",
+    "planned_date",
+    "planned_start_time",
+    "planned_end_time",
+    "assigned_to",
+    "customer_location",
+    "status",
+    "checkin_time",
+    "checkin_latitude",
+    "checkin_longitude",
+    "checkin_accuracy",
+    "checkin_by",
+    "checkout_time",
+    "checkout_latitude",
+    "checkout_longitude",
+    "checkout_accuracy",
+    "checkout_by",
+    "distance_from_customer",
+    "allowed_radius",
+    "duration_minutes",
+    "location_latitude",
+    "location_longitude",
+    "checkout_distance",
+    "geo_status",
+    "checkout_geo_status",
+    "outcome",
+    "notes",
+    "next_followup_date",
+    "attachment",
+    "photo",
+    "signature"
+  ],
+  "fields": [
+    {
+      "fieldname": "reference_doctype",
+      "fieldtype": "Select",
+      "label": "CRM Record Type",
+      "options": "CRM Lead\nCRM Deal\nCRM Organization",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "reference_name",
+      "fieldtype": "Dynamic Link",
+      "label": "CRM Record",
+      "options": "reference_doctype",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "visit_type",
+      "fieldtype": "Select",
+      "label": "Visit Type",
+      "options": "Customer Visit\nDemo\nFollow-up\nOther",
+      "default": "Customer Visit",
+      "reqd": 1
+    },
+    {
+      "fieldname": "visit_purpose",
+      "fieldtype": "Small Text",
+      "label": "Visit Purpose",
+      "reqd": 1
+    },
+    {
+      "fieldname": "planned_date",
+      "fieldtype": "Date",
+      "label": "Planned Date",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "planned_start_time",
+      "fieldtype": "Time",
+      "label": "Planned Start Time"
+    },
+    {
+      "fieldname": "planned_end_time",
+      "fieldtype": "Time",
+      "label": "Planned End Time"
+    },
+    {
+      "fieldname": "assigned_to",
+      "fieldtype": "Link",
+      "label": "Assigned To",
+      "options": "User",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "customer_location",
+      "fieldtype": "Link",
+      "label": "Customer Location",
+      "options": "CRM Customer Location"
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "Planned\nStarted\nCompleted\nCancelled\nMissed",
+      "default": "Planned",
+      "read_only": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "checkin_time",
+      "fieldtype": "Datetime",
+      "label": "Check-in Time",
+      "read_only": 1
+    },
+    {
+      "fieldname": "checkin_latitude",
+      "fieldtype": "Float",
+      "label": "Check-in latitude",
+      "read_only": 1,
+      "precision": "8"
+    },
+    {
+      "fieldname": "checkin_longitude",
+      "fieldtype": "Float",
+      "label": "Check-in longitude",
+      "read_only": 1,
+      "precision": "8"
+    },
+    {
+      "fieldname": "checkin_accuracy",
+      "fieldtype": "Float",
+      "label": "Check-in accuracy",
+      "read_only": 1,
+      "precision": "8"
+    },
+    {
+      "fieldname": "checkin_by",
+      "fieldtype": "Link",
+      "label": "Checked In By",
+      "options": "User",
+      "read_only": 1
+    },
+    {
+      "fieldname": "checkout_time",
+      "fieldtype": "Datetime",
+      "label": "Check-out Time",
+      "read_only": 1
+    },
+    {
+      "fieldname": "checkout_latitude",
+      "fieldtype": "Float",
+      "label": "Check-out latitude",
+      "read_only": 1,
+      "precision": "8"
+    },
+    {
+      "fieldname": "checkout_longitude",
+      "fieldtype": "Float",
+      "label": "Check-out longitude",
+      "read_only": 1,
+      "precision": "8"
+    },
+    {
+      "fieldname": "checkout_accuracy",
+      "fieldtype": "Float",
+      "label": "Check-out accuracy",
+      "read_only": 1,
+      "precision": "8"
+    },
+    {
+      "fieldname": "checkout_by",
+      "fieldtype": "Link",
+      "label": "Checked Out By",
+      "options": "User",
+      "read_only": 1
+    },
+    {
+      "fieldname": "distance_from_customer",
+      "fieldtype": "Float",
+      "label": "distance from customer",
+      "read_only": 1,
+      "precision": "2"
+    },
+    {
+      "fieldname": "allowed_radius",
+      "fieldtype": "Float",
+      "label": "allowed radius",
+      "read_only": 1,
+      "precision": "2"
+    },
+    {
+      "fieldname": "duration_minutes",
+      "fieldtype": "Float",
+      "label": "duration minutes",
+      "read_only": 1,
+      "precision": "2"
+    },
+    {
+      "fieldname": "location_latitude",
+      "fieldtype": "Float",
+      "label": "location latitude",
+      "read_only": 1,
+      "precision": "8"
+    },
+    {
+      "fieldname": "location_longitude",
+      "fieldtype": "Float",
+      "label": "location longitude",
+      "read_only": 1,
+      "precision": "8"
+    },
+    {
+      "fieldname": "checkout_distance",
+      "fieldtype": "Float",
+      "label": "checkout distance",
+      "read_only": 1,
+      "precision": "2"
+    },
+    {
+      "fieldname": "geo_status",
+      "fieldtype": "Select",
+      "label": "Check-in Geo Status",
+      "options": "Not Checked\nWithin Radius\nOutside Radius\nLocation Unavailable\nAccuracy Too Low",
+      "default": "Not Checked",
+      "read_only": 1
+    },
+    {
+      "fieldname": "checkout_geo_status",
+      "fieldtype": "Select",
+      "label": "Check-out Geo Status",
+      "options": "\nNot Checked\nWithin Radius\nOutside Radius\nLocation Unavailable\nAccuracy Too Low",
+      "read_only": 1
+    },
+    {
+      "fieldname": "outcome",
+      "fieldtype": "Data",
+      "label": "Outcome",
+      "read_only": 1
+    },
+    {
+      "fieldname": "notes",
+      "fieldtype": "Small Text",
+      "label": "Visit Notes",
+      "read_only": 1
+    },
+    {
+      "fieldname": "next_followup_date",
+      "fieldtype": "Date",
+      "label": "Next Follow-up",
+      "read_only": 1
+    },
+    {
+      "fieldname": "attachment",
+      "fieldtype": "Attach",
+      "label": "Attachment"
+    },
+    {
+      "fieldname": "photo",
+      "fieldtype": "Attach Image",
+      "label": "Photo"
+    },
+    {
+      "fieldname": "signature",
+      "fieldtype": "Signature",
+      "label": "Signature"
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "report": 1,
+      "export": 1,
+      "print": 1
+    },
+    {
+      "role": "Sales Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "report": 1,
+      "export": 1,
+      "print": 1
+    },
+    {
+      "role": "Sales User",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 0,
+      "report": 1,
+      "export": 1,
+      "print": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "title_field": "reference_name",
+  "search_fields": "reference_name",
+  "allow_rename": 0
+}
