@@ -4,6 +4,7 @@ import { registerCRMSidebarItem } from './registry/sidebar.js'
 import FieldVisits from '../pages/FieldVisits.vue'
 import VisitSettingsPage from '../pages/VisitSettingsPage.vue'
 import VisitsTab from '../tabs/VisitsTab.vue'
+import CopilotTab from '../tabs/CopilotTab.vue'
 
 let registered = false
 export function registerExtensions() {
@@ -16,6 +17,7 @@ export function registerExtensions() {
   })
   for (const doctype of ['CRM Lead', 'CRM Deal']) {
     registerCRMTab({ doctype, name: 'Visits', label: 'Visits', component: VisitsTab })
+    registerCRMTab({ doctype, name: 'Copilot', label: 'Copilot', component: CopilotTab })
   }
   registered = true
 }
