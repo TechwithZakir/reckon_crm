@@ -1,16 +1,17 @@
-"""Tenant access sync for Reckon CRM: per-tenant role, Company permission, shared-role cleanup.
+"""Tenant access for Reckon CRM: per-company roles and Company permissions, reconciled per user.
 
-Runs from the Tenant User Assignment hooks, so every assignment gets the same access.
-Idempotent.
+A user's Reckon CRM roles always match their active assignments in CRM-subscribed
+companies. Adding, changing or deactivating an assignment reconciles the whole set.
 """
 
 from __future__ import annotations
 
 import frappe
 
-from reckon_crm.saas_constants import ADMIN_ROLE, ROLES, USER_ROLE, tenant_role
+from reckon_crm.saas_constants import ADMIN_ROLE, USER_ROLE
 
 SHARED_ROLES = (ADMIN_ROLE, USER_ROLE)
+MODULE_ROLE_PREFIX = "Reckon CRM "
 
 
 def sync_company_permission(user: str, companies: list[str]) -> None:
@@ -29,32 +30,52 @@ def sync_company_permission(user: str, companies: list[str]) -> None:
             }).insert(ignore_permissions=True)
 
 
-def apply_assignment(user: str, company: str, role_profile: str | None) -> None:
-    """Give the user this company's CRM role and permission, and drop the shared roles."""
-    if not frappe.db.exists("User", user) or user in {"Guest", "Administrator"}:
-        return
-    from reckon_crm.seed import ensure_company_roles
+def reconcile_user(user: str) -> None:
+    """Make the user's Reckon CRM roles and Company permissions match their active assignments.
 
-    roles = ensure_company_roles(company)
-    target = roles["Admin"] if role_profile == "Company Admin" else roles["User"]
+    Role changes run as Administrator even when a company admin triggered them; the
+    caller's session is restored afterwards.
+    """
+    caller = frappe.session.user
+    frappe.set_user("Administrator")
+    try:
+        _reconcile(user)
+    finally:
+        frappe.set_user(caller)
+
+
+def _reconcile(user: str) -> None:
+    from reckon_crm.seed import ensure_company_roles
+    from reckon_saas_platform.saas import is_subscription_active
+
+    if not user or user in {"Guest", "Administrator"} or not frappe.db.exists("User", user):
+        return
+    rows = frappe.get_all(
+        "Tenant User Assignment", filters={"user": user, "active": 1}, fields=["company", "role_profile"]
+    )
+    desired, companies = set(), []
+    for row in rows:
+        if not is_subscription_active(row.company, "crm"):
+            continue
+        roles = ensure_company_roles(row.company)
+        desired.add(roles["Admin"] if row.role_profile == "Company Admin" else roles["User"])
+        companies.append(row.company)
+
+    module_roles = {
+        r for r in frappe.get_all("Role", filters={"name": ["like", MODULE_ROLE_PREFIX + "%"]}, pluck="name")
+        if " - " in r
+    }
     doc = frappe.get_doc("User", user)
-    current = frappe.get_roles(user)
-    if target not in current:
-        doc.add_roles(target)
-    for shared in SHARED_ROLES:
-        if shared in current:
-            doc.remove_roles(shared)
-    companies = frappe.get_all("Tenant User Assignment", filters={"user": user, "active": 1}, pluck="company")
+    current = set(frappe.get_roles(user))
+    for role in sorted(desired - current):
+        doc.add_roles(role)
+    for role in sorted(((module_roles | set(SHARED_ROLES)) & current) - desired):
+        doc.remove_roles(role)
     sync_company_permission(user, sorted(set(companies)))
     frappe.clear_cache(user=user)
 
 
 def sync_tenant_user_access(doc, method=None) -> None:
-    """Tenant User Assignment hook. Only assignments for CRM-subscribed companies."""
-    from reckon_saas_platform.saas import is_subscription_active
-
-    if not doc.get("active") or not doc.get("user") or not doc.get("company"):
-        return
-    if not is_subscription_active(doc.company, "crm"):
-        return
-    apply_assignment(doc.user, doc.company, doc.get("role_profile"))
+    """Tenant User Assignment hook: reconcile the user, including when an assignment is deactivated."""
+    if doc.get("user"):
+        reconcile_user(doc.user)
