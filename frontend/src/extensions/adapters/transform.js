@@ -5,6 +5,11 @@ import { extendMobile } from './crmMobileAdapter.js'
 export function transformCRM(source, filename) {
   if (!targetFiles.includes(filename)) return source
   source = source.replaceAll('\r\n', '\n')
+  if (filename === 'src/main.js') {
+    // Load the Aura skin after frappe-ui's own CSS so its tokens win.
+    return replaceOnce(source, "import './index.css'",
+      "import './index.css'\nimport '@reckon/extensions/theme/aura-crm.css'", filename)
+  }
   if (filename === 'src/router.js') {
     if (/path:\s*['"]\/visits['"]/.test(source)) {
       throw new Error('CRM already defines /visits; resolve the route collision in the adapter.')

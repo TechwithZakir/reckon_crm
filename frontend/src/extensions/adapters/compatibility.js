@@ -27,6 +27,7 @@ export function extendTabOptions(source, doctype, surface, filename) {
 }
 
 export const targetFiles = Object.freeze([
+  'src/main.js',
   'src/router.js',
   'src/components/Layouts/AppSidebar.vue',
   'src/pages/Lead.vue', 'src/pages/Deal.vue',

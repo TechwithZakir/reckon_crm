@@ -1,0 +1,127 @@
+/*
+ * Reckon Aura theme for Frappe CRM.
+ *
+ * Frappe CRM is a Vue SPA on frappe-ui, so the Desk skin in reckon_aura_theme
+ * does not reach it. This file remaps frappe-ui's semantic colour variables
+ * (--surface-*, --ink-*, --outline-*) to the Aura palette. Every frappe-ui
+ * component reads those variables, so the whole CRM follows Aura without
+ * changing component code. It is loaded after frappe-ui's own CSS.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Geist:wght@400;500;600&display=swap");
+
+:root {
+  --aura-accent: #6d4cff;
+  --aura-accent-2: #00a7d1;
+  --aura-bg: #f4f3fb;
+  --aura-text: #15132b;
+  --aura-muted: #5a5780;
+  --aura-aurora:
+    radial-gradient(900px 600px at 0% -10%, rgba(109, 76, 255, 0.2), transparent 70%),
+    radial-gradient(800px 640px at 105% 110%, rgba(0, 167, 209, 0.14), transparent 70%),
+    #f4f3fb;
+
+  --surface-base: #ffffff;
+  --surface-white: #ffffff;
+  --surface-sidebar: #f7f6fd;
+  --surface-elevation-1: #ffffff;
+  --surface-elevation-2: #fbfbff;
+  --surface-elevation-3: #f4f3fb;
+  --surface-gray-1: #fbfbff;
+  --surface-gray-2: #f4f3fb;
+  --surface-gray-3: #ebeaf6;
+  --surface-gray-4: #e0deef;
+  --surface-gray-5: #cfcde5;
+  --surface-gray-6: #b9b6d6;
+  --surface-gray-7: #a19ec6;
+  --surface-gray-8: #4d32c8;
+  --surface-gray-9: #5b3ee6;
+  --surface-gray-10: #6d4cff;
+
+  --ink-base: #ffffff;
+  --ink-gray-1: #e6e4f2;
+  --ink-gray-2: #d0cee6;
+  --ink-gray-3: #b9b6d6;
+  --ink-gray-4: #9a97b9;
+  --ink-gray-5: #77749c;
+  --ink-gray-6: #5a5780;
+  --ink-gray-7: #3f3c69;
+  --ink-gray-8: #2c2950;
+  --ink-gray-9: #15132b;
+
+  --outline-base: #ffffff;
+  --outline-gray-1: #f2f1f9;
+  --outline-gray-2: #e6e4f2;
+  --outline-gray-3: #d6d3ea;
+  --outline-gray-4: #c4c1de;
+  --outline-gray-5: #aaa6cd;
+  --outline-gray-6: #8f8bb8;
+  --outline-gray-7: #6f6b98;
+  --outline-gray-8: #4d4a75;
+  --outline-gray-9: #2c2950;
+  --outline-elevation-1: #e6e4f2;
+  --outline-elevation-2: #d6d3ea;
+}
+
+:root[data-theme="dark"] {
+  --aura-accent: #8b6dff;
+  --aura-accent-2: #00c8f0;
+  --aura-bg: #07070f;
+  --aura-text: #eceaff;
+  --aura-muted: #a9a5d6;
+  --aura-aurora:
+    radial-gradient(900px 600px at 0% -10%, rgba(139, 109, 255, 0.38), transparent 70%),
+    radial-gradient(800px 640px at 105% 110%, rgba(0, 200, 240, 0.22), transparent 70%),
+    #07070f;
+
+  --surface-base: #0c0b1a;
+  --surface-white: #15132b;
+  --surface-sidebar: #0f0d20;
+  --surface-elevation-1: #15132b;
+  --surface-elevation-2: #1d1a38;
+  --surface-elevation-3: #272446;
+  --surface-gray-1: #0c0b1a;
+  --surface-gray-2: #15132b;
+  --surface-gray-3: #1d1a38;
+  --surface-gray-4: #272446;
+  --surface-gray-5: #33305a;
+  --surface-gray-6: #42406b;
+  --surface-gray-7: #5a5787;
+  --surface-gray-8: #6e4fe8;
+  --surface-gray-9: #7c5cf5;
+  --surface-gray-10: #8b6dff;
+
+  --ink-base: #ffffff;
+  --ink-gray-1: #272446;
+  --ink-gray-2: #35325a;
+  --ink-gray-3: #4b4870;
+  --ink-gray-4: #6a6793;
+  --ink-gray-5: #807ca9;
+  --ink-gray-6: #a9a5d6;
+  --ink-gray-7: #c9c6ea;
+  --ink-gray-8: #dcd9f5;
+  --ink-gray-9: #eceaff;
+
+  --outline-base: #0c0b1a;
+  --outline-gray-1: #1d1a38;
+  --outline-gray-2: #272446;
+  --outline-gray-3: #33305a;
+  --outline-gray-4: #42406b;
+  --outline-gray-5: #5a5787;
+  --outline-gray-6: #6a6793;
+  --outline-gray-7: #807ca9;
+  --outline-gray-8: #a9a5d6;
+  --outline-gray-9: #eceaff;
+  --outline-elevation-1: #272446;
+  --outline-elevation-2: #33305a;
+}
+
+body {
+  background: var(--aura-aurora);
+  background-attachment: fixed;
+  color: var(--ink-gray-9);
+  font-family: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: "Sora", "Geist", ui-sans-serif, system-ui, sans-serif;
+}
