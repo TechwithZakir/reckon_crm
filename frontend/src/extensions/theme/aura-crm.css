@@ -118,6 +118,12 @@ h1, h2, h3 {
 .shadow-base { box-shadow: var(--aura-shadow); }
 .shadow-2xl { box-shadow: var(--aura-shadow-lg); }
 
+/* The build keeps only the -webkit- form of backdrop-filter in the Desk
+   rules, so restate the standard property for the dock's frosted glass. */
+.aura-tools--dock {
+  backdrop-filter: blur(var(--aura-blur));
+}
+
 /* Glass sidebar and header over the aurora background. */
 .bg-surface-sidebar {
   background: color-mix(in srgb, var(--surface-sidebar) 82%, transparent);
