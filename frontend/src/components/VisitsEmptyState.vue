@@ -15,8 +15,8 @@ import VisitIcon from './VisitIcon.vue'
 .reckon-empty { display: flex; flex: 1; min-height: 260px; flex-direction: column;
   align-items: center; justify-content: center; padding: 32px 20px; text-align: center; }
 .reckon-visit-icon { width: 52px; height: 52px; padding: 13px; border-radius: 16px;
-  background: var(--surface-gray-2, #f3f5f4); color: var(--ink-gray-6, #4b625b); }
-h2 { margin: 18px 0 8px; font-size: 18px; font-weight: 600; color: var(--ink-gray-9, #172824); }
-p { margin: 0; color: var(--ink-gray-6, #5d6965); font-size: 14px; }
+  background: var(--surface-gray-2); color: var(--ink-gray-6); }
+h2 { margin: 18px 0 8px; font-size: 18px; font-weight: 600; color: var(--ink-gray-9); }
+p { margin: 0; color: var(--ink-gray-6); font-size: 14px; }
 .reckon-phase-note { margin-top: 16px; max-width: 290px; font-size: 12px; line-height: 1.6; }
 </style>

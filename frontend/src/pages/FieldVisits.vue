@@ -18,7 +18,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.reckon-title { font-size: 16px; font-weight: 600; }
+.reckon-title { font-size: 16px; font-weight: 600; color: var(--ink-gray-9); }
 .reckon-visits { display: flex; flex: 1; min-width: 0; overflow: auto; }
 .reckon-settings-link { color:var(--ink-gray-7,#525252); font-size:14px; text-decoration:none; }
 </style>

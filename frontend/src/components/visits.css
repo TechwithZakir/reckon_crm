@@ -5,7 +5,7 @@
 .rv-workspace h3 { font-size:16px; font-weight:600; margin:12px 0; }
 .rv-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
 .rv-workspace p { margin:12px 0; font-size:14px; line-height:1.6; }
-.rv-card { border:1px solid var(--outline-gray-2,#e5e5e5); border-radius:8px; padding:20px; margin:16px 0; background:var(--surface-white,#fff); }
+.rv-card { border:1px solid var(--outline-gray-2,#e5e5e5); border-radius:8px; padding:20px; margin:16px 0; background:var(--surface-base); }
 .rv-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; }
 .rv-workspace label { display:flex; flex-direction:column; gap:6px; font-size:13px; margin:10px 0; }
 .rv-field { min-width:0; }

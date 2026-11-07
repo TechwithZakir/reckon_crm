@@ -8,11 +8,22 @@ export function replaceOnce(source, needle, replacement, filename) {
   return source.replace(needle, replacement)
 }
 
+// Upstream CRM filters form tabs with `return tabOptions.filter(` in older
+// releases and with `return mergeFormTabs(tabOptions, ...)` on develop (Frappe 16).
+const tabReturnAnchors = [
+  'return tabOptions.filter(',
+  'return mergeFormTabs(tabOptions, ',
+]
+
 export function extendTabOptions(source, doctype, surface, filename) {
   source = replaceOnce(source, '<script setup>',
     `<script setup>\nimport { reckonTabs } from '${runtimeImport}'`, filename)
-  return replaceOnce(source, 'return tabOptions.filter(',
-    `tabOptions.push(...reckonTabs('${doctype}', '${surface}'))\n  return tabOptions.filter(`, filename)
+  const anchor = tabReturnAnchors.find((needle) => source.split(needle).length === 2)
+  if (!anchor) {
+    throw new Error(`Unsupported CRM source: ${filename}; no known tab return anchor. Update the Reckon adapter before building.`)
+  }
+  return replaceOnce(source, anchor,
+    `tabOptions.push(...reckonTabs('${doctype}', '${surface}'))\n  ${anchor}`, filename)
 }
 
 export const targetFiles = Object.freeze([
