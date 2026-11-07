@@ -1,17 +1,30 @@
 /*
  * Aura tools dock for Frappe CRM.
  *
- * reckon_aura_theme renders this dock on Desk pages. The CRM is a separate
- * frappe-ui app, so it builds the same dock here, driven by the same Aura
- * Theme Settings (enable_theme, allow_user_override, enable_ai_bar) and the
- * same per-browser preferences ("aura:prefs"), so the two stay in step.
+ * The same dock as reckon_aura_theme's Desk dock: same markup, classes, SVG
+ * icons, shortcut and Ask AI modal, styled by aura-desk-ui.css. It is driven by
+ * the Aura Theme Settings (enable_theme, allow_user_override, enable_ai_bar)
+ * and shares the per-browser choices ("aura:prefs") and light/dark setting.
  *
- * Dependency-free on purpose: plain DOM, no Desk globals (frappe.boot, $, __).
+ * Plain DOM, no Desk globals (frappe.boot, $, __).
  */
 
 const PREF_KEY = 'aura:prefs'
 const ACCENTS = ['violet', 'cyan', 'ember']
 const API = '/api/method/'
+const IC = {
+  rows: 'M3 5h18M3 12h18M3 19h18',
+  dense: 'M3 4h18M3 9h18M3 14h18M3 19h18',
+  moon: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z',
+  sun: 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4',
+}
+const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || '')
+
+const svg = (d, s = 16) =>
+  `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`
+
+const escapeHtml = (v) =>
+  String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
 
 function readPrefs() {
   try {
@@ -47,16 +60,17 @@ async function call(method, { params = {}, post = false } = {}) {
   return (await res.json()).message
 }
 
-function isDark() {
-  return document.documentElement.getAttribute('data-theme') === 'dark'
-}
+const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark'
 
 function applyAppearance(config) {
   const root = document.documentElement
   const prefs = config.allow_user_override ? readPrefs() : {}
   const accent = prefs.accent || config.accent || 'violet'
+  root.setAttribute('data-aura', 'on')
   root.setAttribute('data-aura-accent', accent)
   root.setAttribute('data-aura-density', prefs.density || config.density || 'comfortable')
+  root.setAttribute('data-aura-aurora', config.aurora_background === 0 ? 'off' : 'on')
+  root.style.setProperty('--aura-blur', (config.glass_blur != null ? config.glass_blur : 18) + 'px')
   if (accent === 'custom' && config.custom_accent) {
     root.style.setProperty('--aura-accent', config.custom_accent)
     root.style.setProperty('--aura-accent-2', config.custom_accent_2 || config.custom_accent)
@@ -69,6 +83,7 @@ function applyAppearance(config) {
 function setMode(next) {
   const root = document.documentElement
   root.setAttribute('data-theme', next)
+  root.setAttribute('data-theme-mode', next)
   try {
     localStorage.setItem('theme', next)
   } catch {
@@ -81,98 +96,101 @@ function setMode(next) {
   }).catch(() => {})
 }
 
-function buildAskPanel(config) {
-  const panel = document.createElement('div')
-  panel.className = 'aura-ask-panel'
-  panel.hidden = true
-  panel.innerHTML = `
-    <textarea placeholder="Ask about your CRM data…" aria-label="Question"></textarea>
-    <div class="aura-ask-answer" aria-live="polite"></div>
-    <button type="button" class="aura-ask-send">Ask</button>`
-  const textarea = panel.querySelector('textarea')
-  const answer = panel.querySelector('.aura-ask-answer')
-  const send = panel.querySelector('.aura-ask-send')
-  send.addEventListener('click', async () => {
-    const question = textarea.value.trim()
-    if (!question) return
-    answer.textContent = 'Thinking…'
-    send.disabled = true
-    try {
-      const reply = await call('reckon_aura_theme.api.ask', { post: true, params: { question } })
-      answer.textContent = reply?.answer || 'No answer.'
-    } catch {
-      answer.textContent = 'Ask AI is unavailable right now. Check Aura Theme Settings → AI.'
-    } finally {
-      send.disabled = false
-    }
-  })
-  textarea.addEventListener('keydown', (event) => {
-    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') send.click()
-  })
-  return panel
-}
+function buildAsk(config) {
+  const brand = escapeHtml(config.brand_name || 'ReckonERP')
+  const backdrop = document.createElement('div')
+  backdrop.className = 'aura-ask-backdrop'
+  backdrop.setAttribute('role', 'presentation')
+  backdrop.innerHTML = `
+    <div class="aura-ask" role="dialog" aria-modal="true" aria-label="Ask AI">
+      <div class="aura-ask-input">
+        <span class="aura-spark-badge">✦</span>
+        <input type="text" autocomplete="off" spellcheck="false"
+          placeholder="Ask ${brand} AI about your CRM…">
+        <kbd>Esc</kbd>
+      </div>
+      <div class="aura-ask-body"></div>
+    </div>`
+  const input = backdrop.querySelector('input')
+  const body = backdrop.querySelector('.aura-ask-body')
 
-function buildDock(config) {
-  const dock = document.createElement('div')
-  dock.className = 'aura-tools aura-tools--dock'
-
-  if (config.ai_bar) {
-    const ask = document.createElement('button')
-    ask.type = 'button'
-    ask.className = 'aura-ask-trigger'
-    ask.innerHTML = '<span class="aura-spark">✦</span><span>Ask AI</span>'
-    ask.addEventListener('click', () => {
-      const panel = dock.__askPanel
-      panel.hidden = !panel.hidden
-      if (!panel.hidden) panel.querySelector('textarea').focus()
-    })
-    dock.appendChild(ask)
+  const close = () => backdrop.classList.remove('is-open')
+  const open = () => {
+    backdrop.classList.add('is-open')
+    input.focus()
   }
 
+  const submit = async () => {
+    const question = input.value.trim()
+    if (!question) return
+    body.innerHTML = '<div class="aura-answer">Thinking…</div>'
+    try {
+      const reply = await call('reckon_aura_theme.api.ask', { post: true, params: { question } })
+      body.innerHTML = `<div class="aura-answer">${escapeHtml(reply?.answer || 'No answer.')}</div>`
+    } catch {
+      body.innerHTML = '<div class="aura-answer is-error">Ask AI is unavailable. Check Aura Theme Settings → AI.</div>'
+    }
+  }
+
+  backdrop.addEventListener('mousedown', (event) => event.target === backdrop && close())
+  backdrop.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') close()
+    if (event.key === 'Enter' && document.activeElement === input) submit()
+  })
+
+  document.body.appendChild(backdrop)
+  return { open, close, isOpen: () => backdrop.classList.contains('is-open') }
+}
+
+function buildDock(config, ask) {
+  const dock = document.createElement('div')
+  dock.className = 'aura-tools aura-tools--dock'
+  const parts = []
+  if (config.ai_bar) {
+    parts.push(
+      `<button type="button" class="aura-ask-trigger" data-aura-action="ask" title="Ask AI">` +
+        `<span class="aura-spark">✦</span><span class="aura-ask-text">Ask AI</span>` +
+        `<kbd>${IS_MAC ? '⌘J' : 'Ctrl J'}</kbd></button>`,
+    )
+  }
   if (config.allow_user_override) {
-    const density = document.createElement('button')
-    density.type = 'button'
-    density.className = 'aura-icon-btn'
-    density.title = 'Toggle density'
-    density.setAttribute('aria-label', 'Toggle density')
-    density.textContent = '≡'
-    density.addEventListener('click', () => {
+    parts.push(`<button type="button" class="aura-icon-btn" data-aura-action="density" title="Toggle density"></button>`)
+    parts.push(`<button type="button" class="aura-icon-btn" data-aura-action="accent" title="Change accent"><span class="aura-swatch"></span></button>`)
+  }
+  parts.push(`<button type="button" class="aura-icon-btn" data-aura-action="mode" title="Light / dark"></button>`)
+  dock.innerHTML = parts.join('')
+
+  const sync = () => {
+    const mode = dock.querySelector('[data-aura-action="mode"]')
+    if (mode) mode.innerHTML = svg(isDark() ? IC.sun : IC.moon)
+    const density = dock.querySelector('[data-aura-action="density"]')
+    if (density) {
+      density.innerHTML = svg(document.documentElement.getAttribute('data-aura-density') === 'compact' ? IC.dense : IC.rows)
+    }
+  }
+
+  dock.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-aura-action]')
+    if (!button) return
+    const action = button.getAttribute('data-aura-action')
+    if (action === 'ask') ask.open()
+    else if (action === 'density') {
       const next = document.documentElement.getAttribute('data-aura-density') === 'compact' ? 'comfortable' : 'compact'
       writePrefs({ density: next })
       applyAppearance(config)
-    })
-    dock.appendChild(density)
-
-    const accent = document.createElement('button')
-    accent.type = 'button'
-    accent.className = 'aura-icon-btn'
-    accent.title = 'Change accent'
-    accent.setAttribute('aria-label', 'Change accent')
-    accent.innerHTML = '<span class="aura-swatch"></span>'
-    accent.addEventListener('click', () => {
+    } else if (action === 'accent') {
       const list = config.custom_accent ? [...ACCENTS, 'custom'] : ACCENTS
       const current = document.documentElement.getAttribute('data-aura-accent') || list[0]
-      const next = list[(list.indexOf(current) + 1) % list.length]
-      writePrefs({ accent: next })
+      writePrefs({ accent: list[(list.indexOf(current) + 1) % list.length] })
       applyAppearance(config)
-    })
-    dock.appendChild(accent)
-  }
-
-  const mode = document.createElement('button')
-  mode.type = 'button'
-  mode.className = 'aura-icon-btn'
-  mode.title = 'Light / dark'
-  mode.setAttribute('aria-label', 'Light or dark mode')
-  mode.textContent = isDark() ? '☀' : '☾'
-  mode.addEventListener('click', () => {
-    const next = isDark() ? 'light' : 'dark'
-    setMode(next)
-    mode.textContent = next === 'dark' ? '☀' : '☾'
+    } else if (action === 'mode') {
+      setMode(isDark() ? 'light' : 'dark')
+    }
+    sync()
   })
-  dock.appendChild(mode)
 
-  return dock
+  sync()
+  return { dock, sync }
 }
 
 export async function mountAuraDock() {
@@ -185,10 +203,16 @@ export async function mountAuraDock() {
   if (!config || config.enabled === 0) return
 
   applyAppearance(config)
-
-  const dock = buildDock(config)
-  const panel = buildAskPanel(config)
-  dock.__askPanel = panel
-  document.body.appendChild(panel)
+  const ask = buildAsk(config)
+  const { dock } = buildDock(config, ask)
   document.body.appendChild(dock)
+
+  // Same shortcut as the Desk: Ctrl/⌘ + J opens Ask AI.
+  document.addEventListener('keydown', (event) => {
+    if (!config.ai_bar) return
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'j') {
+      event.preventDefault()
+      ask.isOpen() ? ask.close() : ask.open()
+    }
+  })
 }

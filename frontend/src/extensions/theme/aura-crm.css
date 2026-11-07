@@ -1,25 +1,16 @@
 /*
- * Reckon Aura theme for Frappe CRM.
+ * Reckon Aura theme for Frappe CRM (CRM-specific layer).
  *
  * Frappe CRM is a Vue SPA on frappe-ui, so the Desk skin in reckon_aura_theme
- * does not reach it. This file remaps frappe-ui's semantic colour variables
- * (--surface-*, --ink-*, --outline-*) to the Aura palette. Every frappe-ui
- * component reads those variables, so the whole CRM follows Aura without
- * changing component code. It is loaded after frappe-ui's own CSS.
+ * does not reach it. aura-desk-ui.css (generated from the Desk stylesheet)
+ * supplies the Aura tokens, the accents and the dock/Ask styles. This file
+ * remaps frappe-ui's semantic colour variables (--surface-*, --ink-*,
+ * --outline-*) to the same palette, and styles CRM components to match.
+ * It loads after frappe-ui's CSS and after aura-desk-ui.css.
  */
 @import url("https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Geist:wght@400;500;600&display=swap");
 
 :root {
-  --aura-accent: #6d4cff;
-  --aura-accent-2: #00a7d1;
-  --aura-bg: #f4f3fb;
-  --aura-text: #15132b;
-  --aura-muted: #5a5780;
-  --aura-aurora:
-    radial-gradient(900px 600px at 0% -10%, rgba(109, 76, 255, 0.2), transparent 70%),
-    radial-gradient(800px 640px at 105% 110%, rgba(0, 167, 209, 0.14), transparent 70%),
-    #f4f3fb;
-
   --surface-base: #ffffff;
   --surface-white: #ffffff;
   --surface-sidebar: #f7f6fd;
@@ -63,16 +54,6 @@
 }
 
 :root[data-theme="dark"] {
-  --aura-accent: #8b6dff;
-  --aura-accent-2: #00c8f0;
-  --aura-bg: #07070f;
-  --aura-text: #eceaff;
-  --aura-muted: #a9a5d6;
-  --aura-aurora:
-    radial-gradient(900px 600px at 0% -10%, rgba(139, 109, 255, 0.38), transparent 70%),
-    radial-gradient(800px 640px at 105% 110%, rgba(0, 200, 240, 0.22), transparent 70%),
-    #07070f;
-
   --surface-base: #0c0b1a;
   --surface-white: #15132b;
   --surface-sidebar: #0f0d20;
@@ -119,90 +100,13 @@ body {
   background: var(--aura-aurora);
   background-attachment: fixed;
   color: var(--ink-gray-9);
-  font-family: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--aura-font);
 }
 
 h1, h2, h3 {
-  font-family: "Sora", "Geist", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--aura-font-head);
 }
 
-/* Accent choices from the Aura dock (same values as reckon_aura_theme). */
-:root[data-aura-accent="cyan"] { --aura-accent: #0088a8; --aura-accent-2: #1fbf8f; }
-:root[data-aura-accent="ember"] { --aura-accent: #e8483a; --aura-accent-2: #f29a1f; }
-:root[data-theme="dark"][data-aura-accent="cyan"] { --aura-accent: #00b4d8; --aura-accent-2: #34e3aa; }
-:root[data-theme="dark"][data-aura-accent="ember"] { --aura-accent: #ff6a5a; --aura-accent-2: #ffb347; }
-
-/* Aura tools dock: mode, accent, density and Ask AI, shown on every CRM page. */
-.aura-tools {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.aura-tools--dock {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 1030;
-  padding: 6px;
-  border-radius: 16px;
-  background: var(--surface-elevation-1);
-  border: 1px solid var(--outline-elevation-2);
-  box-shadow: 0 24px 60px rgba(30, 20, 90, 0.18);
-}
-:root[data-theme="dark"] .aura-tools--dock {
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
-}
-.aura-icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--ink-gray-7);
-  cursor: pointer;
-  font-size: 15px;
-}
-.aura-icon-btn:hover { background: var(--surface-gray-3); }
-.aura-swatch {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--aura-grad, linear-gradient(135deg, var(--aura-accent), var(--aura-accent-2)));
-}
-.aura-ask-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 32px;
-  padding: 0 10px 0 12px;
-  border-radius: 10px;
-  border: 1px solid var(--outline-gray-2);
-  background: var(--surface-base);
-  color: var(--ink-gray-9);
-  font: 500 13px/1 "Geist", ui-sans-serif, system-ui, sans-serif;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.aura-ask-trigger:hover { border-color: var(--aura-accent); }
-.aura-ask-trigger .aura-spark { color: var(--aura-accent); }
-.aura-ask-panel {
-  position: fixed;
-  right: 16px;
-  bottom: 70px;
-  z-index: 1031;
-  width: min(380px, calc(100vw - 32px));
-  padding: 14px;
-  border-radius: 16px;
-  background: var(--surface-elevation-1);
-  border: 1px solid var(--outline-elevation-2);
-  box-shadow: 0 24px 60px rgba(30, 20, 90, 0.18);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
 /* Component shapes and surfaces, matching the Aura Desk skin. */
 .rounded { border-radius: 8px; }
 .rounded-sm { border-radius: 6px; }
@@ -217,8 +121,8 @@ h1, h2, h3 {
 /* Glass sidebar and header over the aurora background. */
 .bg-surface-sidebar {
   background: color-mix(in srgb, var(--surface-sidebar) 82%, transparent);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(var(--aura-blur));
+  backdrop-filter: blur(var(--aura-blur));
   border-right: 1px solid var(--outline-gray-1);
 }
 header {
@@ -228,7 +132,7 @@ header {
 
 /* Accent glow on primary actions; quiet hover on inputs. */
 .bg-surface-gray-10:hover {
-  box-shadow: 0 6px 22px color-mix(in srgb, var(--aura-accent) 32%, transparent);
+  box-shadow: var(--aura-glow);
 }
 .bg-surface-gray-2 { transition: background-color 150ms ease, border-color 150ms ease; }
 
@@ -238,40 +142,8 @@ header {
   outline-offset: 2px;
 }
 
-/* Remaining overlay and dropdown surfaces use the same elevated card. */
+/* Overlay and dropdown surfaces use the same elevated card as the Desk. */
 .bg-surface-white,
 .bg-surface-elevation-3 {
   border: 1px solid var(--outline-elevation-2);
-}
-
-.aura-ask-panel[hidden] { display: none; }
-.aura-ask-panel textarea {
-  width: 100%;
-  min-height: 72px;
-  border-radius: 10px;
-  border: 1px solid var(--outline-gray-2);
-  background: var(--surface-gray-1);
-  color: var(--ink-gray-9);
-  padding: 8px 10px;
-  font: 13px/1.5 "Geist", ui-sans-serif, system-ui, sans-serif;
-  resize: vertical;
-}
-.aura-ask-answer {
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--ink-gray-8);
-  white-space: pre-wrap;
-  max-height: 260px;
-  overflow: auto;
-}
-.aura-ask-panel .aura-ask-send {
-  align-self: flex-end;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 8px;
-  border: 0;
-  background: var(--surface-gray-10);
-  color: var(--ink-base);
-  font: 500 13px/1 "Geist", ui-sans-serif, system-ui, sans-serif;
-  cursor: pointer;
 }
