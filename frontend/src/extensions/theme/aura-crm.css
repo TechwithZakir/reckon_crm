@@ -203,6 +203,47 @@ h1, h2, h3 {
   flex-direction: column;
   gap: 10px;
 }
+/* Component shapes and surfaces, matching the Aura Desk skin. */
+.rounded { border-radius: 8px; }
+.rounded-sm { border-radius: 6px; }
+.rounded-md { border-radius: 10px; }
+.rounded-lg { border-radius: 14px; }
+.rounded-4 { border-radius: 8px; }
+.rounded-\[7px\] { border-radius: 10px; }
+.shadow-sm { box-shadow: var(--aura-shadow); }
+.shadow-base { box-shadow: var(--aura-shadow); }
+.shadow-2xl { box-shadow: var(--aura-shadow-lg); }
+
+/* Glass sidebar and header over the aurora background. */
+.bg-surface-sidebar {
+  background: color-mix(in srgb, var(--surface-sidebar) 82%, transparent);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid var(--outline-gray-1);
+}
+header {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* Accent glow on primary actions; quiet hover on inputs. */
+.bg-surface-gray-10:hover {
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--aura-accent) 32%, transparent);
+}
+.bg-surface-gray-2 { transition: background-color 150ms ease, border-color 150ms ease; }
+
+/* Visible keyboard focus in the accent colour. */
+:focus-visible {
+  outline: 2px solid var(--aura-accent);
+  outline-offset: 2px;
+}
+
+/* Remaining overlay and dropdown surfaces use the same elevated card. */
+.bg-surface-white,
+.bg-surface-elevation-3 {
+  border: 1px solid var(--outline-elevation-2);
+}
+
 .aura-ask-panel[hidden] { display: none; }
 .aura-ask-panel textarea {
   width: 100%;
