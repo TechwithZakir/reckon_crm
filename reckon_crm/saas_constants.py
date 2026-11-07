@@ -20,3 +20,7 @@ def tenant_role(kind: str, company: str) -> str:
     if kind not in {"Admin", "User"}:
         raise ValueError(f"unknown CRM role kind: {kind}")
     return f"Reckon CRM {kind} - {company}"[:140]
+
+DESK_GUARD = True
+DESK_DOCTYPES = TENANT_OWNED_DOCTYPES + ("CRM Task", "CRM Note")
+DESK_WORKSPACES = ("CRM",)

@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from reckon_crm.saas_constants import (
     ADMIN_ROLE,
+    DESK_DOCTYPES,
+    DESK_GUARD,
+    DESK_WORKSPACES,
     HOME_ROUTE,
     MODULE_FEATURES,
     MODULE_KEY,
@@ -24,4 +27,7 @@ def get_module_definition() -> dict:
         "roles": list(ROLES),
         "seed_handler": "reckon_crm.seed.run_crm_seed",
         "subscription_features": list(MODULE_FEATURES),
+        "desk_guard": DESK_GUARD,
+        "desk_doctypes": list(DESK_DOCTYPES),
+        "desk_workspaces": list(DESK_WORKSPACES),
     }
