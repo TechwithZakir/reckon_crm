@@ -7,8 +7,11 @@ export function transformCRM(source, filename) {
   source = source.replaceAll('\r\n', '\n')
   if (filename === 'src/main.js') {
     // Load the Aura skin after frappe-ui's own CSS so its tokens win.
-    return replaceOnce(source, "import './index.css'",
-      "import './index.css'\nimport '@reckon/extensions/theme/aura-crm.css'", filename)
+    // The Aura skin loads after frappe-ui's CSS so its tokens win; the tools
+    // dock mounts once the page is up, driven by the Aura Theme Settings.
+    source = replaceOnce(source, "import './index.css'",
+      "import './index.css'\nimport '@reckon/extensions/theme/aura-crm.css'\nimport { mountAuraDock } from '@reckon/extensions/theme/auraDock.js'\nmountAuraDock()", filename)
+    return source
   }
   if (filename === 'src/router.js') {
     if (/path:\s*['"]\/visits['"]/.test(source)) {

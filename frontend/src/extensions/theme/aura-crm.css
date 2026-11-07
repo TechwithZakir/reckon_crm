@@ -33,9 +33,9 @@
   --surface-gray-5: #cfcde5;
   --surface-gray-6: #b9b6d6;
   --surface-gray-7: #a19ec6;
-  --surface-gray-8: #4d32c8;
-  --surface-gray-9: #5b3ee6;
-  --surface-gray-10: #6d4cff;
+  --surface-gray-8: color-mix(in srgb, var(--aura-accent) 70%, #000);
+  --surface-gray-9: color-mix(in srgb, var(--aura-accent) 85%, #000);
+  --surface-gray-10: var(--aura-accent);
 
   --ink-base: #ffffff;
   --ink-gray-1: #e6e4f2;
@@ -86,9 +86,9 @@
   --surface-gray-5: #33305a;
   --surface-gray-6: #42406b;
   --surface-gray-7: #5a5787;
-  --surface-gray-8: #6e4fe8;
-  --surface-gray-9: #7c5cf5;
-  --surface-gray-10: #8b6dff;
+  --surface-gray-8: color-mix(in srgb, var(--aura-accent) 80%, #000);
+  --surface-gray-9: color-mix(in srgb, var(--aura-accent) 90%, #000);
+  --surface-gray-10: var(--aura-accent);
 
   --ink-base: #ffffff;
   --ink-gray-1: #272446;
@@ -124,4 +124,112 @@ body {
 
 h1, h2, h3 {
   font-family: "Sora", "Geist", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Accent choices from the Aura dock (same values as reckon_aura_theme). */
+:root[data-aura-accent="cyan"] { --aura-accent: #0088a8; --aura-accent-2: #1fbf8f; }
+:root[data-aura-accent="ember"] { --aura-accent: #e8483a; --aura-accent-2: #f29a1f; }
+:root[data-theme="dark"][data-aura-accent="cyan"] { --aura-accent: #00b4d8; --aura-accent-2: #34e3aa; }
+:root[data-theme="dark"][data-aura-accent="ember"] { --aura-accent: #ff6a5a; --aura-accent-2: #ffb347; }
+
+/* Aura tools dock: mode, accent, density and Ask AI, shown on every CRM page. */
+.aura-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.aura-tools--dock {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1030;
+  padding: 6px;
+  border-radius: 16px;
+  background: var(--surface-elevation-1);
+  border: 1px solid var(--outline-elevation-2);
+  box-shadow: 0 24px 60px rgba(30, 20, 90, 0.18);
+}
+:root[data-theme="dark"] .aura-tools--dock {
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+.aura-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-gray-7);
+  cursor: pointer;
+  font-size: 15px;
+}
+.aura-icon-btn:hover { background: var(--surface-gray-3); }
+.aura-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--aura-grad, linear-gradient(135deg, var(--aura-accent), var(--aura-accent-2)));
+}
+.aura-ask-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--outline-gray-2);
+  background: var(--surface-base);
+  color: var(--ink-gray-9);
+  font: 500 13px/1 "Geist", ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.aura-ask-trigger:hover { border-color: var(--aura-accent); }
+.aura-ask-trigger .aura-spark { color: var(--aura-accent); }
+.aura-ask-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 70px;
+  z-index: 1031;
+  width: min(380px, calc(100vw - 32px));
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--surface-elevation-1);
+  border: 1px solid var(--outline-elevation-2);
+  box-shadow: 0 24px 60px rgba(30, 20, 90, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.aura-ask-panel textarea {
+  width: 100%;
+  min-height: 72px;
+  border-radius: 10px;
+  border: 1px solid var(--outline-gray-2);
+  background: var(--surface-gray-1);
+  color: var(--ink-gray-9);
+  padding: 8px 10px;
+  font: 13px/1.5 "Geist", ui-sans-serif, system-ui, sans-serif;
+  resize: vertical;
+}
+.aura-ask-answer {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-gray-8);
+  white-space: pre-wrap;
+  max-height: 260px;
+  overflow: auto;
+}
+.aura-ask-panel .aura-ask-send {
+  align-self: flex-end;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 0;
+  background: var(--surface-gray-10);
+  color: var(--ink-base);
+  font: 500 13px/1 "Geist", ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
 }
