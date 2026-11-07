@@ -13,6 +13,7 @@ from reckon_crm.saas_constants import (
     MODULE_LABEL,
     ROLES,
     TENANT_OWNED_DOCTYPES,
+    USER_ROLE,
     WORKSPACE,
 )
 
@@ -34,4 +35,6 @@ def get_module_definition() -> dict:
         # The platform creates per-company roles and reconciles team access for these.
         "tenant_role_prefix": "Reckon CRM",
         "tenant_doctypes": list(TENANT_OWNED_DOCTYPES),
+        # Workspace and app access for CRM users. It grants no data rights; those are per company.
+        "tenant_shared_role": USER_ROLE,
     }

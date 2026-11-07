@@ -1,1 +1,2 @@
 reckon_crm.patches.crm_company_scope
+reckon_crm.patches.crm_workspace_access
