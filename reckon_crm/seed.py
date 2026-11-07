@@ -36,15 +36,15 @@ def ensure_company_roles(company: str) -> dict:
 
 
 def run_crm_seed(company: str, seed_version: str) -> dict:
-    from reckon_crm.access import apply_assignment
+    from reckon_crm.access import reconcile_user
 
     roles = ensure_company_roles(company)
     assignees = frappe.get_all(
         "Tenant User Assignment", filters={"company": company, "active": 1},
         fields=["user", "role_profile"],
     )
-    for row in assignees:
-        apply_assignment(row.user, company, row.role_profile)
+    for user in sorted({row.user for row in assignees}):
+        reconcile_user(user)
     frappe.clear_cache()
     return {"company": company, "seed_version": seed_version, "roles": list(roles.values()),
             "assigned": sorted({r.user for r in assignees})}
