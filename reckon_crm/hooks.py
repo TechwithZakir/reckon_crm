@@ -6,6 +6,16 @@ app_email = ""
 app_license = "GPL-3.0-or-later"
 required_apps = ["crm", "reckon_saas_platform"]
 
+# The Reckon CRM tile on the Desk apps screen, and the landing page for CRM-only tenants.
+add_to_apps_screen = [
+    {
+        "name": "reckon_crm",
+        "title": "Reckon CRM",
+        "route": "/crm",
+        "has_permission": "reckon_crm.desk.can_see_app",
+    }
+]
+
 # Registers Reckon CRM as a SaaS module, the same way Distribution and HRMS do.
 reckon_saas_modules = [
     "reckon_crm.saas_module.get_module_definition",
