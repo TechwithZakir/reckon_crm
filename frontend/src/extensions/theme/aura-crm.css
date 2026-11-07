@@ -203,6 +203,7 @@ h1, h2, h3 {
   flex-direction: column;
   gap: 10px;
 }
+.aura-ask-panel[hidden] { display: none; }
 .aura-ask-panel textarea {
   width: 100%;
   min-height: 72px;
