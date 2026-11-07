@@ -10,7 +10,7 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from reckon_crm.saas_constants import MODULE_FEATURES, ROLES, TENANT_OWNED_DOCTYPES  # noqa: E402
+from reckon_crm.saas_constants import MODULE_FEATURES, ROLES, TENANT_OWNED_DOCTYPES, tenant_role  # noqa: E402
 from reckon_crm.saas_module import get_module_definition  # noqa: E402
 
 REQUIRED = {"key", "label", "workspace", "home_route", "admin_role", "roles", "seed_handler", "subscription_features"}
@@ -38,6 +38,19 @@ class CRMSaaSContractTests(unittest.TestCase):
 
     def test_tenant_doctypes(self):
         self.assertEqual(TENANT_OWNED_DOCTYPES, ("CRM Lead", "CRM Deal", "CRM Organization"))
+
+
+class TenantRoleTests(unittest.TestCase):
+    def test_role_names_are_per_company(self):
+        self.assertEqual(tenant_role("Admin", "Acme Ltd"), "Reckon CRM Admin - Acme Ltd")
+        self.assertNotEqual(tenant_role("Admin", "A"), tenant_role("Admin", "B"))
+
+    def test_unknown_kind_rejected(self):
+        with self.assertRaises(ValueError):
+            tenant_role("Manager", "Acme Ltd")
+
+    def test_name_is_capped_at_frappe_limit(self):
+        self.assertLessEqual(len(tenant_role("User", "x" * 300)), 140)
 
 
 if __name__ == "__main__":

@@ -13,3 +13,10 @@ MODULE_FEATURES = {"leads": "Leads", "deals": "Deals", "organizations": "Organiz
 
 # Company-owned CRM doctypes, scoped to a tenant Company by the platform's rules.
 TENANT_OWNED_DOCTYPES = ("CRM Lead", "CRM Deal", "CRM Organization")
+
+
+def tenant_role(kind: str, company: str) -> str:
+    """Per-tenant role name, for example "Reckon CRM Admin - Acme Ltd". kind is "Admin" or "User"."""
+    if kind not in {"Admin", "User"}:
+        raise ValueError(f"unknown CRM role kind: {kind}")
+    return f"Reckon CRM {kind} - {company}"[:140]
