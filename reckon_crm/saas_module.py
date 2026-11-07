@@ -35,6 +35,7 @@ def get_module_definition() -> dict:
         # The platform creates per-company roles and reconciles team access for these.
         "tenant_role_prefix": "Reckon CRM",
         "tenant_doctypes": list(TENANT_OWNED_DOCTYPES),
-        # Workspace and app access for CRM users. It grants no data rights; those are per company.
-        "tenant_shared_role": USER_ROLE,
+        # CRM's own app check needs a Sales role. Row access stays per company (platform and CRM override)
+        # and the desk guard limits pages and DocType APIs to this module.
+        "tenant_shared_role": "Sales User",
     }
