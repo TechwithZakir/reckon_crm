@@ -8,6 +8,17 @@ import frappe
 from werkzeug.wrappers import Response
 from reckon_crm import __version__
 
+# Must match targetFiles in frontend/src/extensions/adapters/compatibility.js.
+EXPECTED_SOURCE_FILES = frozenset({
+    "src/main.js",
+    "src/router.js",
+    "src/components/Layouts/AppSidebar.vue",
+    "src/pages/Lead.vue",
+    "src/pages/Deal.vue",
+    "src/pages/MobileLead.vue",
+    "src/pages/MobileDeal.vue",
+})
+
 
 class ReckonCRMPage:
     def __init__(self, path, http_status_code=None):
@@ -49,7 +60,7 @@ class ReckonCRMPage:
                 return result(False, "The generated frontend asset directory is missing; rebuild Reckon CRM.")
             source = Path(frappe.get_app_path("crm")).parent / "frontend"
             files = metadata["files"]
-            if metadata.get("schema") != 1 or not isinstance(files, dict) or len(files) != 6:
+            if metadata.get("schema") != 1 or not isinstance(files, dict) or set(files) != EXPECTED_SOURCE_FILES:
                 return result(False, "The frontend compatibility metadata is invalid; rebuild Reckon CRM.")
             for filename, expected in files.items():
                 target = (source / filename).resolve()
