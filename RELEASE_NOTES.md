@@ -5,6 +5,19 @@ is not a published release. Preserve previous entries when adding new versions.
 
 ## Unreleased
 
+### Lead and deal tab scrolling
+
+#### Fixed
+
+- The Leads and Deals tab strips scroll sideways with a visible horizontal
+  scrollbar, matching the Desk's Employee form. The upstream CRM hid the bar
+  with a zero-height rule; the Reckon theme overrides it for `[role="tablist"]`.
+
+#### Validation and limitations
+
+- Frontend build and the frontend test suite are run before release. Visual
+  check in the browser on Windows Chrome is pending.
+
 ### CRM-native visit interface
 
 #### Changed

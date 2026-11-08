@@ -153,3 +153,21 @@ header {
 .bg-surface-elevation-3 {
   border: 1px solid var(--outline-elevation-2);
 }
+
+/* Tab strips (Leads, Deals) scroll sideways with a visible bar, like the Desk's form tabs.
+   The upstream CRM hides the bar with a zero-height rule, so this overrides it. */
+[role="tablist"] {
+  scrollbar-width: thin !important;
+  scrollbar-color: #9aa0ad transparent;
+}
+[role="tablist"]::-webkit-scrollbar {
+  display: block !important;
+  height: 6px !important;
+}
+[role="tablist"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+[role="tablist"]::-webkit-scrollbar-thumb {
+  background: #9aa0ad;
+  border-radius: 999px;
+}
