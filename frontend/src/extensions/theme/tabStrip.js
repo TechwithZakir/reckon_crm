@@ -14,9 +14,12 @@ export function keepTabStripPosition(root = document.body) {
     saved = event.currentTarget.scrollLeft
   }
 
-  const restore = (el) => {
+  // The new strip may not be laid out yet, so retry for about half a second.
+  const restore = (el, frames = 30) => {
     requestAnimationFrame(() => {
-      if (el.isConnected && el.scrollWidth > el.clientWidth) el.scrollLeft = saved
+      if (!el.isConnected || frames <= 0) return
+      if (el.scrollWidth > el.clientWidth && el.scrollLeft !== saved) el.scrollLeft = saved
+      restore(el, frames - 1)
     })
   }
 
