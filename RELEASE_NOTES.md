@@ -9,6 +9,9 @@ is not a published release. Preserve previous entries when adding new versions.
 
 #### Fixed
 
+- Backend contract tests write the exact adapter target files the renderer validates,
+  so the CI `unit` job passes after the target list was narrowed.
+
 - The Leads and Deals tab strips scroll sideways with a visible horizontal
   scrollbar, matching the Desk's Employee form. The upstream CRM hid the bar
   with a zero-height rule; the Reckon theme overrides it for `[role="tablist"]`.

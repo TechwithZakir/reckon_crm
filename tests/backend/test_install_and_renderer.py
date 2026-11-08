@@ -48,9 +48,11 @@ class AdapterContracts(unittest.TestCase):
         source = self.root / "frontend"
         source.mkdir(parents=True, exist_ok=True)
         files = {}
-        for index in range(6):
-            filename = f"source{index}.js"
-            (source / filename).write_bytes(b"source")
+        # The renderer requires exactly the adapter target files, so write those.
+        for filename in sorted(self.renderer.EXPECTED_SOURCE_FILES):
+            path = source / filename
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"source")
             files[filename] = hashlib.sha256(b"source").hexdigest()
         from reckon_crm import __version__
         target.with_suffix(".json").write_text(json.dumps({"schema": 1, "buildId": "abc123", "files": files, "extensionVersion": __version__}))
@@ -155,9 +157,10 @@ class AdapterContracts(unittest.TestCase):
     def test_diagnostics_identify_stale_and_missing_build_files(self):
         self.write_template()
         page = self.renderer.ReckonCRMPage("crm")
-        source = self.root / "frontend" / "source0.js"
+        name = sorted(self.renderer.EXPECTED_SOURCE_FILES)[0]
+        source = self.root / "frontend" / name
         source.write_bytes(b"updated")
-        self.assertIn("source0.js", page.asset_status()["reason"])
+        self.assertIn(name, page.asset_status()["reason"])
         source.write_bytes(b"source")
         (self.root / "reckon_crm/public/frontend/abc123/index.html").unlink()
         self.assertIn("asset directory is missing", page.asset_status()["reason"])
