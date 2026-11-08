@@ -12,6 +12,9 @@ is not a published release. Preserve previous entries when adding new versions.
 - The Leads and Deals tab strips scroll sideways with a visible horizontal
   scrollbar, matching the Desk's Employee form. The upstream CRM hid the bar
   with a zero-height rule; the Reckon theme overrides it for `[role="tablist"]`.
+- Choosing a tab keeps the strip's scroll position. Frappe CRM re-creates the tab strip
+  on each tab change, which reset a scrolled strip to its first tab. The theme now
+  restores the saved position on the new strip (`frontend/src/extensions/theme/tabStrip.js`).
 
 #### Validation and limitations
 

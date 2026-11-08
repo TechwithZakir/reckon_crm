@@ -10,7 +10,7 @@ export function transformCRM(source, filename) {
     // The Aura skin loads after frappe-ui's CSS so its tokens win; the tools
     // dock mounts once the page is up, driven by the Aura Theme Settings.
     source = replaceOnce(source, "import './index.css'",
-      "import './index.css'\nimport '@reckon/extensions/theme/aura-desk-ui.css'\nimport '@reckon/extensions/theme/aura-crm.css'\nimport { mountAuraDock } from '@reckon/extensions/theme/auraDock.js'\nmountAuraDock()", filename)
+      "import './index.css'\nimport '@reckon/extensions/theme/aura-desk-ui.css'\nimport '@reckon/extensions/theme/aura-crm.css'\nimport { mountAuraDock } from '@reckon/extensions/theme/auraDock.js'\nimport { keepTabStripPosition } from '@reckon/extensions/theme/tabStrip.js'\nmountAuraDock()\nkeepTabStripPosition()", filename)
     return source
   }
   if (filename === 'src/router.js') {
