@@ -60,6 +60,8 @@ for _doctype, _events in _tenant_events.items():
 has_permission = {
     "Reckon CRM Settings": "reckon_crm.services.settings.administrator_permission",
     "CRM Field Visit": "reckon_crm.utils.permissions.document_permission",
+    "CRM Task": "reckon_crm.tenancy_hooks.owner_company_permission",
+    "FCRM Note": "reckon_crm.tenancy_hooks.owner_company_permission",
     "CRM Customer Location": "reckon_crm.utils.permissions.document_permission",
     **{
         doctype: "reckon_saas_platform.tenant_security.has_tenant_owned_permission"
@@ -68,6 +70,8 @@ has_permission = {
 }
 permission_query_conditions = {
     "CRM Field Visit": "reckon_crm.utils.permissions.query_conditions",
+    "CRM Task": "reckon_crm.tenancy_hooks.owner_company_query",
+    "FCRM Note": "reckon_crm.tenancy_hooks.owner_company_query",
     "CRM Customer Location": "reckon_crm.utils.permissions.location_query_conditions",
     **{
         doctype: "reckon_saas_platform.tenant_security.get_tenant_owned_query"

@@ -22,5 +22,5 @@ def tenant_role(kind: str, company: str) -> str:
     return f"Reckon CRM {kind} - {company}"[:140]
 
 DESK_GUARD = True
-DESK_DOCTYPES = TENANT_OWNED_DOCTYPES + ("CRM Task", "CRM Note")
+DESK_DOCTYPES = TENANT_OWNED_DOCTYPES + ("CRM Task", "FCRM Note")
 DESK_WORKSPACES = ("CRM",)
