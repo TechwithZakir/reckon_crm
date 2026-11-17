@@ -7,9 +7,15 @@ app_license = "GPL-3.0-or-later"
 required_apps = ["crm", "reckon_saas_platform"]
 
 # The Reckon CRM tile on the Desk apps screen, and the landing page for CRM-only tenants.
+app_logo_url = "/assets/reckon_crm/images/reckon-crm.svg"
+app_icon_url = app_logo_url
+app_icon_title = "Reckon CRM"
+app_icon_route = "/crm"
+
 add_to_apps_screen = [
     {
         "name": "reckon_crm",
+        "logo": app_logo_url,
         "title": "Reckon CRM",
         "route": "/crm",
         "has_permission": "reckon_crm.desk.can_see_app",

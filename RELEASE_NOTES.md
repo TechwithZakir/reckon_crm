@@ -5,6 +5,24 @@ is not a published release. Preserve previous entries when adding new versions.
 
 ## Unreleased
 
+### Ask Aura AI in the CRM, own app icon
+
+#### Changed
+
+- The CRM's Ask AI is now the Desk's Ask Aura AI panel: same markup, classes, chat with history, voice, "Dock to right"
+  and Ctrl/Cmd+J, answered by `reckon_aura_theme.api.ask`. It replaces the earlier one-line command box.
+- The Aura tools (Ask Aura AI, density, accent, light/dark) sit in the CRM sidebar's bottom group, above Help and
+  Collapse, and show icons only when the sidebar is collapsed. They float at the bottom right only if that group is
+  not on screen.
+- `aura-desk-ui.css` is generated from the Desk stylesheet by `scripts/sync-aura-css.mjs` so both look the same.
+- Reckon CRM has its own Desk apps-screen icon (`public/images/reckon-crm.svg`).
+
+#### Notes
+
+- The platform hides the Frappe CRM and Frappe HR tiles from the Desk apps screen once Reckon CRM and Reckon HRMS are
+  installed. The apps stay installed: Reckon CRM is built on CRM.
+- Rebuild the frontend (`npm run build`) after pulling this change.
+
 ### Lead and deal tab scrolling
 
 #### Fixed

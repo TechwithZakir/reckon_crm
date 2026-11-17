@@ -171,3 +171,37 @@ header {
   background: #9aa0ad;
   border-radius: 999px;
 }
+
+/* Aura tools in the CRM sidebar's bottom group (above Help and Collapse), as CRM's own items sit there. */
+.aura-tools--sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 0 0 6px;
+  margin: 0;
+  position: static;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.aura-tools--sidebar .aura-ask-trigger {
+  width: 100%;
+  height: 32px;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 0 8px;
+  border-radius: 8px;
+}
+.aura-tools--sidebar .aura-ask-trigger kbd { margin-left: auto; }
+.aura-tools--sidebar .aura-tools-row { display: flex; align-items: center; gap: 4px; padding: 0 2px; }
+.aura-tools--sidebar.is-collapsed .aura-ask-text,
+.aura-tools--sidebar.is-collapsed .aura-ask-trigger kbd { display: none; }
+.aura-tools--sidebar.is-collapsed .aura-ask-trigger { justify-content: center; padding: 0; }
+.aura-tools--sidebar.is-collapsed .aura-tools-row { flex-direction: column; }
+
+/* The CRM app is as wide as the screen, so the docked Ask panel narrows it instead of covering it. */
+body.aura-ask-page-reflow { padding-right: 0; }
+body.aura-ask-page-reflow #app > div { width: calc(100vw - var(--aura-ask-dock-width)); }
