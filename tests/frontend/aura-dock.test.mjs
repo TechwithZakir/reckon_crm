@@ -14,11 +14,11 @@ test('the CRM Ask panel is the Desk Ask Aura AI panel: same classes, chat API an
   assert.ok(!dock.includes('about your CRM…'), 'the old one-line command box is gone')
 })
 
-test('the tools sit in the CRM sidebar bottom group and float only as a fallback', () => {
+test('the tools float at the bottom right like the Desk dock, not inside the CRM sidebar', () => {
   const dock = read('auraDock.js')
-  assert.ok(dock.includes("#app div.mt-auto.flex.flex-col.gap-1.pt-2"))
-  assert.ok(dock.includes('insertBefore(inSidebar, group.firstChild)'))
-  assert.ok(dock.includes('aura-tools--dock'))
+  assert.ok(dock.includes('aura-tools aura-tools--dock'))
+  assert.ok(!dock.includes('mt-auto'))
+  assert.ok(!dock.includes('MutationObserver'))
 })
 
 test('no dock mouse handler cancels the browser default, so text selection and focus work', () => {
@@ -35,7 +35,6 @@ test('the CRM stylesheet carries the Desk Ask panel rules', () => {
   for (const selector of ['.aura-chat-turn', '.aura-ask-composer', '.aura-ask-header', '.aura-ask-backdrop.is-docked']) {
     assert.ok(css.includes(selector), selector)
   }
-  // The sidebar tools use the shared Desk rules, not a CRM-only copy.
-  assert.ok(css.includes('.aura-tools--sidebar'))
-  assert.ok(!read('aura-crm.css').includes('.aura-tools--sidebar'))
+  // The CRM does not place the tools itself: only the one-line backdrop-filter note remains in its stylesheet.
+  assert.ok(!/\.aura-tools[^{]*\{[^}]*(position|right|bottom)/.test(read('aura-crm.css')))
 })

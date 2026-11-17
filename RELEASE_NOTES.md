@@ -11,11 +11,10 @@ is not a published release. Preserve previous entries when adding new versions.
 
 - The CRM's Ask AI is now the Desk's Ask Aura AI panel: same markup, classes, chat with history, voice, "Dock to right"
   and Ctrl/Cmd+J, answered by `reckon_aura_theme.api.ask`. It replaces the earlier one-line command box.
-- The Aura tools (Ask Aura AI, density, accent, light/dark) sit in the CRM sidebar's bottom group, above Help and
-  Collapse, and show icons only when the sidebar is collapsed. They float at the bottom right only if that group is
-  not on screen.
+- The Aura tools (Ask Aura AI, density, accent, light/dark) float at the bottom right, in the same place and with the same
+  CSS as on the Desk. CRM keeps its own Collapse button; the Desk gets a matching Collapse / Expand row from the Aura theme.
 - `aura-desk-ui.css` is generated from the Desk stylesheet by `scripts/sync-aura-css.mjs` so both look the same. The sidebar
-  tools use the same shared rules as the Desk sidebar (no CRM-only copy), so Ask Aura AI sits in the same place everywhere.
+  tools are the same floating dock as the Desk's, so Ask Aura AI sits in the same place everywhere.
 - Reckon CRM has its own Desk apps-screen icon (`public/images/reckon-crm.svg`).
 
 #### Notes

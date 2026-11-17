@@ -6,8 +6,8 @@
  * see scripts/sync-aura-css.mjs). It is driven by Aura Theme Settings (enable_theme, allow_user_override,
  * enable_ai_bar) and shares the per-browser choices ("aura:prefs") and light/dark setting with the Desk.
  *
- * The tools sit in the CRM sidebar's bottom group, next to Help and Collapse, as CRM's own items do. If that
- * group is not on screen (other layouts), they float at the bottom right instead.
+ * The tools float at the bottom right, in the same place and with the same CSS as on the Desk. (CRM keeps its own
+ * Collapse button in its sidebar; the Desk gets a matching one from the Aura theme.)
  *
  * Plain DOM, no Desk globals (frappe.boot, $, __).
  */
@@ -15,7 +15,6 @@
 const PREF_KEY = 'aura:prefs'
 const ACCENTS = ['violet', 'cyan', 'ember']
 const API = '/api/method/'
-const SIDEBAR_BOTTOM = '#app div.mt-auto.flex.flex-col.gap-1.pt-2'
 const IC = {
   rows: 'M3 5h18M3 12h18M3 19h18',
   dense: 'M3 4h18M3 9h18M3 14h18M3 19h18',
@@ -339,9 +338,9 @@ function buildAsk(config) {
 
 // ---------------------------------------------------------------- the tools
 
-function buildTools(config, ask, sidebar) {
+function buildTools(config, ask) {
   const tools = document.createElement('div')
-  tools.className = 'aura-tools ' + (sidebar ? 'aura-tools--sidebar' : 'aura-tools--dock')
+  tools.className = 'aura-tools aura-tools--dock'
   const parts = []
   if (config.ai_bar) {
     parts.push(
@@ -356,7 +355,7 @@ function buildTools(config, ask, sidebar) {
     icons.push(`<button type="button" class="aura-icon-btn" data-aura-action="accent" title="Change accent"><span class="aura-swatch"></span></button>`)
   }
   icons.push(`<button type="button" class="aura-icon-btn" data-aura-action="mode" title="Light / dark"></button>`)
-  parts.push(sidebar ? `<div class="aura-tools-row">${icons.join('')}</div>` : icons.join(''))
+  parts.push(icons.join(''))
   tools.innerHTML = parts.join('')
 
   const sync = () => {
@@ -386,39 +385,6 @@ function buildTools(config, ask, sidebar) {
   return tools
 }
 
-// Put the tools at the top of the CRM sidebar's bottom group (above Help and Collapse), and keep them there
-// while Vue re-renders the sidebar (collapse, route changes). Falls back to the floating dock after a while.
-function placeTools(config, ask) {
-  let floating = null
-  let inSidebar = null
-  const attach = () => {
-    const group = document.querySelector(SIDEBAR_BOTTOM)
-    if (!group) return false
-    if (!inSidebar) inSidebar = buildTools(config, ask, true)
-    if (inSidebar.parentElement !== group) group.insertBefore(inSidebar, group.firstChild)
-    // Collapsed sidebar: icons only.
-    inSidebar.classList.toggle('is-collapsed', group.getBoundingClientRect().width < 120)
-    if (floating) { floating.remove(); floating = null }
-    return true
-  }
-  let queued = false
-  const observer = new MutationObserver(() => {
-    if (queued) return
-    queued = true
-    requestAnimationFrame(() => { queued = false; attach() })  // Vue re-renders often: once per frame is enough
-  })
-  observer.observe(document.body, { childList: true, subtree: true })
-  window.addEventListener('resize', attach)
-  if (!attach()) {
-    setTimeout(() => {
-      if (!attach() && !floating) {
-        floating = buildTools(config, ask, false)
-        document.body.appendChild(floating)
-      }
-    }, 8000)
-  }
-}
-
 export async function mountAuraDock() {
   let config
   try {
@@ -430,7 +396,7 @@ export async function mountAuraDock() {
 
   applyAppearance(config)
   const ask = buildAsk(config)
-  placeTools(config, ask)
+  document.body.appendChild(buildTools(config, ask))  // the same floating tools as the Desk
 
   // Same shortcut as the Desk: Ctrl/⌘ + J opens Ask Aura AI.
   document.addEventListener('keydown', (event) => {
