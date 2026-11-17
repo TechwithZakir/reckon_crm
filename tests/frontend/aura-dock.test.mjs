@@ -35,5 +35,7 @@ test('the CRM stylesheet carries the Desk Ask panel rules', () => {
   for (const selector of ['.aura-chat-turn', '.aura-ask-composer', '.aura-ask-header', '.aura-ask-backdrop.is-docked']) {
     assert.ok(css.includes(selector), selector)
   }
-  assert.ok(read('aura-crm.css').includes('.aura-tools--sidebar'))
+  // The sidebar tools use the shared Desk rules, not a CRM-only copy.
+  assert.ok(css.includes('.aura-tools--sidebar'))
+  assert.ok(!read('aura-crm.css').includes('.aura-tools--sidebar'))
 })

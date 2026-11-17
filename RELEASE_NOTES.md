@@ -14,7 +14,8 @@ is not a published release. Preserve previous entries when adding new versions.
 - The Aura tools (Ask Aura AI, density, accent, light/dark) sit in the CRM sidebar's bottom group, above Help and
   Collapse, and show icons only when the sidebar is collapsed. They float at the bottom right only if that group is
   not on screen.
-- `aura-desk-ui.css` is generated from the Desk stylesheet by `scripts/sync-aura-css.mjs` so both look the same.
+- `aura-desk-ui.css` is generated from the Desk stylesheet by `scripts/sync-aura-css.mjs` so both look the same. The sidebar
+  tools use the same shared rules as the Desk sidebar (no CRM-only copy), so Ask Aura AI sits in the same place everywhere.
 - Reckon CRM has its own Desk apps-screen icon (`public/images/reckon-crm.svg`).
 
 #### Notes
