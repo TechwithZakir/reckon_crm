@@ -8,6 +8,8 @@ lang: en
 
 # Field Sales CRM for Bangladesh: Field Visits, GPS Check-In and Geofencing on Frappe CRM
 
+![Banner](banner.svg)
+
 Field sales teams in Bangladesh visit distributors, retailers and customers every day, but managers rarely see where visits happen or what came out of them. **Reckon CRM** by Reckon Technologies Ltd. extends the Frappe CRM experience with a field visit engine, inside the same CRM screens your team already uses.
 
 ## Detailed features
